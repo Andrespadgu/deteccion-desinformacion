@@ -328,7 +328,6 @@ async function cargarDatos() {
     if (!resp.ok) throw new Error('no json');
     DATOS = await resp.json();
   } catch(e) {
-    // Fallback: datos embebidos (generados por el notebook)
     DATOS = DATOS_EMBEBIDOS;
   }
   renderizar();
@@ -358,8 +357,7 @@ function renderizar() {
   document.getElementById('decision-text').textContent = dec.icon + '  ' + pct.decision_final.toUpperCase();
   document.getElementById('decision-text').className = 'decision-value ' + dec.cls;
   document.getElementById('decision-sub').innerHTML =
-    'Basado en el análisis de <strong>' + r.total_publicaciones.toLocaleString('es-CO') + '</strong> publicaciones';
-  document.getElementById('total-pub').textContent = r.total_publicaciones.toLocaleString('es-CO');
+    'Basado en el análisis de <strong id="total-pub">' + r.total_publicaciones.toLocaleString('es-CO') + '</strong> publicaciones';
   document.getElementById('confianza-num').textContent = pct.confianza_pct.toFixed(1) + '%';
 
   // Barras 3 decisiones
