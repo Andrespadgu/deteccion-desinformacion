@@ -1,1165 +1,2009 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema Cancelado — Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --R: #dc2626; --R2: #fef2f2;
-      --O: #ea580c; --O2: #fff7ed;
-      --G: #16a34a; --G2: #f0fdf4;
-      --purple: #7c3aed; --purple2: #f5f3ff;
-      --navy: #0f172a; --navy2: #1e293b;
-      --slate: #64748b; --light: #f8fafc;
-      --border: #e2e8f0;
-      --sh: 0 1px 3px rgba(0,0,0,.08);
-      --r: 12px;
-    }
-    body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--light); color:var(--navy); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Caso Kai Duarte</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --azul:       #1e6cbf;
+    --azul-cl:    #4a9edd;
+    --rojo:       #d9534f;
+    --amarillo:   #f0a500;
+    --verde:      #3aaa5c;
+    --gris-bg:    #f7f9fc;
+    --gris-card:  #ffffff;
+    --gris-borde: #e0e6ed;
+    --texto:      #1a1f2e;
+    --texto-cl:   #5c6882;
+    --supa-verde: #3fcf8e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris-bg); color: var(--texto); }
 
-    /* HEADER */
-    header { background:var(--navy); color:#f1f5f9; padding:13px 28px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.4); }
-    .logo { font-size:1.2rem; font-weight:800; letter-spacing:-.5px; }
-    .logo span { color:#f87171; }
-    .logo-sub { font-size:.7rem; color:#94a3b8; font-weight:400; letter-spacing:.2px; margin-top:1px; }
-    .hcontrols { margin-left:auto; display:flex; align-items:center; gap:10px; }
-    #caso-select { background:var(--navy2); color:#f1f5f9; border:1px solid #334155; border-radius:8px; padding:6px 11px; font-size:.88rem; cursor:pointer; }
-    #refresh-btn { background:#1d4ed8; color:#fff; border:none; border-radius:8px; padding:7px 16px; font-size:.88rem; font-weight:700; cursor:pointer; }
-    #refresh-btn:hover { background:#2563eb; }
-    #refresh-btn:disabled { background:#475569; cursor:not-allowed; }
-    #ts { font-size:.75rem; color:#94a3b8; }
-    #db-indicator { display:flex; align-items:center; gap:6px; font-size:.78rem; }
-    .db-dot { width:8px; height:8px; border-radius:50%; background:#94a3b8; }
-    .db-dot.live { background:#22c55e; }
-    .db-dot.err  { background:#ef4444; }
+  /* ---- HEADER ---- */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-left h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: .3px; }
+  .header-left span { font-size: .8rem; color: #94a3b8; }
+  .badge-live {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(63,207,142,.12); border: 1px solid rgba(63,207,142,.35);
+    border-radius: 20px; padding: 4px 12px; font-size: .78rem; color: var(--supa-verde);
+  }
+  .badge-live .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--supa-verde); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .supa-logo { display: flex; align-items: center; gap: 8px; }
+  .supa-logo svg { width: 28px; height: 28px; }
+  .supa-logo span { font-size: .75rem; color: #94a3b8; }
 
-    /* MAIN */
-    main { max-width:1280px; margin:0 auto; padding:22px 22px 120px; }
+  /* ---- LAYOUT ---- */
+  .main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
 
-    /* NOTICE BAR */
-    #notice { border-radius:8px; padding:11px 16px; margin-bottom:18px; font-size:.88rem; display:none; align-items:center; gap:10px; }
-    #notice.show { display:flex; }
-    #notice.warn { background:#fef9c3; border:1px solid #fbbf24; }
-    #notice.err  { background:#fef2f2; border:1px solid #fca5a5; }
-    #notice.ok   { background:#f0fdf4; border:1px solid #86efac; }
+  /* ---- BANNER DECISIÓN ---- */
+  .decision-banner {
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+  }
+  .decision-banner.amarillo { background: linear-gradient(135deg, #fffbeb, #fef3c7); border-left: 6px solid var(--amarillo); }
+  .decision-banner.rojo     { background: linear-gradient(135deg, #fff5f5, #fee2e2); border-left: 6px solid var(--rojo); }
+  .decision-banner.verde    { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-left: 6px solid var(--verde); }
+  .decision-label { font-size: .8rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--texto-cl); margin-bottom: 6px; }
+  .decision-value { font-size: 2.2rem; font-weight: 800; }
+  .decision-value.amarillo { color: #b45309; }
+  .decision-value.rojo     { color: #b91c1c; }
+  .decision-value.verde    { color: #15803d; }
+  .decision-sub { font-size: .9rem; color: var(--texto-cl); margin-top: 4px; }
+  .decision-right { text-align: right; }
+  .confianza-num { font-size: 3rem; font-weight: 900; color: var(--texto); }
+  .confianza-label { font-size: .8rem; color: var(--texto-cl); }
 
-    /* VEREDICTO / BANNER */
-    #banner { border-radius:var(--r); padding:22px 28px; margin-bottom:20px; display:flex; align-items:flex-start; gap:20px; box-shadow:var(--sh); transition:background .4s; }
-    #banner.cancelar    { background:#dc2626; }
-    #banner.bajar_video { background:#ea580c; }
-    #banner.mantener    { background:#16a34a; }
-    #banner.dividida    { background:#7c3aed; }
-    #banner.loading     { background:#334155; }
-    .b-icon { font-size:2.6rem; line-height:1; flex-shrink:0; margin-top:2px; }
-    .b-txt  { color:#fff; flex:1; }
-    .b-tag  { font-size:.72rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; opacity:.85; margin-bottom:3px; }
-    .b-dec  { font-size:1.9rem; font-weight:900; line-height:1.1; }
-    .b-certeza { font-size:.78rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; opacity:.9; margin-top:4px; margin-bottom:2px; }
-    .b-sub  { font-size:.88rem; opacity:.88; margin-top:3px; line-height:1.5; }
-    .b-rec  { font-size:.82rem; margin-top:8px; background:rgba(255,255,255,.15); border-radius:8px; padding:8px 12px; line-height:1.5; }
-    .b-rec strong { font-weight:700; }
-    .b-disc { font-size:.73rem; opacity:.72; margin-top:6px; font-style:italic; }
-    .b-count { background:rgba(255,255,255,.18); color:#fff; border-radius:999px; padding:6px 18px; font-size:1.5rem; font-weight:800; white-space:nowrap; align-self:center; flex-shrink:0; }
+  /* ---- KPI CARDS ---- */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card {
+    background: var(--gris-card); border: 1px solid var(--gris-borde);
+    border-radius: 12px; padding: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.05);
+  }
+  .kpi-icon { font-size: 1.6rem; margin-bottom: 8px; }
+  .kpi-value { font-size: 1.9rem; font-weight: 800; color: var(--texto); }
+  .kpi-label { font-size: .78rem; color: var(--texto-cl); margin-top: 4px; }
+  .kpi-sub   { font-size: .73rem; color: var(--texto-cl); margin-top: 2px; }
 
-    /* CARDS */
-    .dgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px; }
-    .dcard { background:#fff; border-radius:var(--r); padding:18px 22px; box-shadow:var(--sh); border-left:5px solid; }
-    .dcard.cancelar    { border-color:var(--R); }
-    .dcard.bajar_video { border-color:var(--O); }
-    .dcard.mantener    { border-color:var(--G); }
-    .dlabel { font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:7px; }
-    .dcard.cancelar .dlabel    { color:var(--R); }
-    .dcard.bajar_video .dlabel { color:var(--O); }
-    .dcard.mantener .dlabel    { color:var(--G); }
-    .dpct   { font-size:2.4rem; font-weight:800; color:var(--navy); }
-    .dcnt   { font-size:.85rem; color:var(--slate); margin-top:3px; }
-    .dbar   { height:5px; border-radius:999px; background:var(--border); margin-top:10px; overflow:hidden; }
-    .dfill  { height:100%; border-radius:999px; transition:width .7s ease; }
-    .dcard.cancelar .dfill    { background:var(--R); }
-    .dcard.bajar_video .dfill { background:var(--O); }
-    .dcard.mantener .dfill    { background:var(--G); }
+  /* ---- GRID DE GRÁFICAS ---- */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .charts-grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .chart-card {
+    background: var(--gris-card); border: 1px solid var(--gris-borde);
+    border-radius: 12px; padding: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.05);
+  }
+  .chart-card.full { grid-column: 1 / -1; }
+  .chart-card h3 { font-size: .9rem; font-weight: 700; color: var(--texto); margin-bottom: 4px; }
+  .chart-card p  { font-size: .75rem; color: var(--texto-cl); margin-bottom: 14px; }
+  .chart-wrap    { position: relative; }
 
-    /* SEÑALES CLAVE */
-    .signals-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:18px; }
-    .signal-card { background:#fff; border-radius:var(--r); padding:14px 16px; box-shadow:var(--sh); border-left:4px solid; display:flex; flex-direction:column; gap:4px; }
-    .signal-card.red    { border-color:#dc2626; }
-    .signal-card.orange { border-color:#ea580c; }
-    .signal-card.amber  { border-color:#d97706; }
-    .signal-card.blue   { border-color:#2563eb; }
-    .signal-card.green  { border-color:#16a34a; }
-    .sig-icon { font-size:1.6rem; line-height:1; margin-bottom:2px; }
-    .sig-val  { font-size:1.05rem; font-weight:800; color:var(--navy); line-height:1.2; }
-    .sig-label { font-size:.7rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; margin-top:2px; }
-    .sig-interp { font-size:.72rem; color:var(--slate); line-height:1.4; margin-top:2px; }
+  /* ---- BARRA 3 DECISIONES ---- */
+  .tres-decisiones { display: flex; gap: 0; border-radius: 10px; overflow: hidden; margin-bottom: 8px; height: 28px; }
+  .dec-bar { display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; color: white; transition: width .5s; }
+  .dec-labels { display: flex; gap: 16px; }
+  .dec-lbl { display: flex; align-items: center; gap: 5px; font-size: .8rem; }
+  .dec-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-    /* HALLAZGOS CLAVE */
-    #hallazgos { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; margin-bottom:18px; }
-    .hallazgo-list { list-style:none; display:flex; flex-direction:column; gap:9px; margin-top:12px; }
-    .hallazgo-list li { font-size:.86rem; line-height:1.55; color:var(--navy2); display:flex; gap:10px; align-items:flex-start; }
-    .hallazgo-list li .hi { flex-shrink:0; font-size:1rem; margin-top:1px; }
+  /* ---- TABLA RANKING ---- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+  th { background: var(--gris-bg); color: var(--texto-cl); font-weight: 600; text-align: left; padding: 9px 12px; border-bottom: 2px solid var(--gris-borde); font-size: .75rem; letter-spacing: .5px; text-transform: uppercase; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--gris-borde); }
+  tr:hover td { background: #f0f6ff; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: .72rem; font-weight: 600; }
+  .badge-bot  { background: #fee2e2; color: #b91c1c; }
+  .badge-new  { background: #fef3c7; color: #92400e; }
+  .badge-anon { background: #f3f4f6; color: #374151; }
+  .badge-fan  { background: #d1fae5; color: #065f46; }
+  .badge-veri { background: #dbeafe; color: #1e40af; }
 
-    /* SECTION CARDS */
-    .card { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; overflow:hidden; }
-    .stitle { font-size:.75rem; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--slate); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
-    .src-badge { font-size:.65rem; padding:2px 7px; border-radius:999px; font-weight:600; background:#dbeafe; color:#1e40af; }
-    .src-badge.live { background:#dcfce7; color:#15803d; }
+  /* ---- BARRA SOSPECHA INLINE ---- */
+  .bar-is { height: 8px; border-radius: 4px; display: inline-block; vertical-align: middle; }
 
-    .row2 { display:grid; grid-template-columns:3fr 2fr; gap:14px; margin-bottom:14px; }
-    .row2b { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
-    canvas { width:100% !important; }
+  /* ---- EXPLICABILIDAD ---- */
+  .explain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .explain-card { background: var(--gris-card); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 18px; }
+  .explain-card h4 { font-size: .85rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .explain-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .explain-var { font-size: .78rem; color: var(--texto-cl); }
+  .explain-pct { font-size: .78rem; font-weight: 700; }
+  .explain-pbar { height: 6px; border-radius: 3px; margin-top: 3px; }
 
-    /* TABLA */
-    .tbl { width:100%; border-collapse:collapse; font-size:.83rem; }
-    .tbl th { text-align:left; font-weight:600; color:var(--slate); font-size:.72rem; text-transform:uppercase; letter-spacing:.4px; padding:7px 9px; border-bottom:2px solid var(--border); }
-    .tbl td { padding:8px 9px; border-bottom:1px solid var(--border); vertical-align:middle; }
-    .tbl tr:last-child td { border-bottom:none; }
-    .tbl tr:hover td { background:#f8fafc; }
+  /* ---- MUESTRAS ---- */
+  .muestra-card { background: var(--gris-card); border: 1px solid var(--gris-borde); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .muestra-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .muestra-texto { font-size: .78rem; color: var(--texto-cl); line-height: 1.45; }
+  .score-chip { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: .75rem; font-weight: 700; }
+  .score-red    { background: #fee2e2; color: #b91c1c; }
+  .score-yellow { background: #fef3c7; color: #92400e; }
+  .score-green  { background: #d1fae5; color: #065f46; }
 
-    .badge { display:inline-block; padding:2px 7px; border-radius:999px; font-size:.68rem; font-weight:700; text-transform:uppercase; }
-    .badge.cancelar    { background:var(--R2); color:var(--R); }
-    .badge.bajar_video { background:var(--O2); color:var(--O); }
-    .badge.mantener    { background:var(--G2); color:var(--G); }
-    .badge.bot  { background:#1e1b4b; color:#a5b4fc; }
-    .badge.new  { background:#fef3c7; color:#92400e; }
-    .badge.anon { background:#f1f5f9; color:#475569; }
-    .badge.ver  { background:#ecfdf5; color:#065f46; }
-    .badge.fan  { background:#eff6ff; color:#1d4ed8; }
+  /* ---- FOOTER ---- */
+  .footer { text-align: center; padding: 28px; font-size: .75rem; color: var(--texto-cl); border-top: 1px solid var(--gris-borde); margin-top: 24px; }
+  .footer a { color: var(--azul); text-decoration: none; }
 
-    .sh { color:var(--R); font-weight:700; }
-    .sm { color:var(--O); font-weight:700; }
-    .sl { color:var(--G); font-weight:700; }
-    .trunc { max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--slate); font-style:italic; font-size:.78rem; }
+  /* ---- TABS ---- */
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+  .tab-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--gris-borde); background: white; cursor: pointer; font-size: .82rem; color: var(--texto-cl); font-weight: 500; transition: all .2s; }
+  .tab-btn.active { background: var(--azul); color: white; border-color: var(--azul); }
+  .tab-panel { display: none; } .tab-panel.active { display: block; }
 
-    /* SEÑALES ACTIVAS (iconos en tabla pubs) */
-    .sig-pills { display:flex; gap:3px; flex-wrap:wrap; }
-    .sig-pill  { font-size:.9rem; line-height:1; cursor:default; }
-
-    /* MOTIVO PRINCIPAL (tabla cuentas) */
-    .motivo { font-size:.75rem; color:var(--slate); font-style:italic; }
-
-    /* SEMAFORO */
-    .sfitem { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-    .sfdot  { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
-    .sflbl  { font-size:.82rem; color:var(--slate); min-width:140px; }
-    .sfbar  { flex:1; height:9px; background:var(--border); border-radius:999px; overflow:hidden; }
-    .sfill  { height:100%; border-radius:999px; transition:width .6s; }
-    .sfcnt  { font-size:.82rem; font-weight:700; min-width:120px; text-align:right; }
-
-    /* CHATBOT */
-    #ctrig { position:fixed; bottom:22px; right:22px; background:var(--navy); color:#fff; border:none; border-radius:999px; padding:13px 20px; font-size:.92rem; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3); z-index:200; display:flex; align-items:center; gap:7px; transition:transform .2s; }
-    #ctrig:hover { transform:translateY(-2px); }
-    #cpanel { position:fixed; bottom:78px; right:22px; width:380px; max-height:540px; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,.15); display:none; flex-direction:column; z-index:200; overflow:hidden; }
-    #cpanel.open { display:flex; }
-    .chdr { background:var(--navy); color:#f1f5f9; padding:13px 16px; font-weight:700; font-size:.92rem; display:flex; justify-content:space-between; align-items:center; }
-    .cclose { background:none; border:none; color:#94a3b8; font-size:1.05rem; cursor:pointer; }
-    .cclose:hover { color:#fff; }
-    #cmsgs { flex:1; overflow-y:auto; padding:14px; background:var(--light); display:flex; flex-direction:column; gap:9px; }
-    .msg { max-width:88%; padding:9px 13px; border-radius:11px; font-size:.85rem; line-height:1.5; }
-    .msg.bot  { background:#fff; border:1px solid var(--border); align-self:flex-start; }
-    .msg.user { background:#1d4ed8; color:#fff; align-self:flex-end; }
-    .chips { padding:9px 13px 0; display:flex; flex-wrap:wrap; gap:6px; background:var(--light); }
-    .chip { background:#fff; border:1px solid var(--border); border-radius:999px; padding:3px 11px; font-size:.73rem; cursor:pointer; transition:background .15s; }
-    .chip:hover { background:#e2e8f0; }
-    .cinput-row { display:flex; border-top:1px solid var(--border); }
-    #cinput { flex:1; padding:11px 13px; border:none; outline:none; font-size:.86rem; font-family:inherit; }
-    #csend { background:#1d4ed8; color:#fff; border:none; padding:11px 16px; cursor:pointer; font-weight:700; font-size:.86rem; }
-    #csend:hover { background:#2563eb; }
-
-    /* EMPTY STATE */
-    .empty { color:var(--slate); text-align:center; padding:28px 0; font-size:.88rem; }
-
-    /* FRAMING DISCLAIMER */
-    #framing { background:#fff; border-radius:var(--r); padding:14px 20px; margin-bottom:18px; border-left:4px solid #6366f1; box-shadow:var(--sh); display:flex; align-items:flex-start; gap:12px; }
-    #framing .fi { font-size:1.4rem; line-height:1; flex-shrink:0; margin-top:1px; }
-    #framing p { font-size:.875rem; color:var(--navy2); line-height:1.55; }
-    #framing strong { color:#4f46e5; }
-
-    /* RECOMENDACION OPERATIVA */
-    #rec-op { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; margin-bottom:18px; }
-    .rec-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
-    .rec-step { border-radius:10px; padding:14px 16px; }
-    .rec-step.imm  { background:#fef3c7; border:1px solid #fcd34d; }
-    .rec-step.rev  { background:#eff6ff; border:1px solid #bfdbfe; }
-    .rec-step.con  { background:#f0fdf4; border:1px solid #bbf7d0; }
-    .rec-step-n  { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
-    .rec-step.imm .rec-step-n { color:#92400e; }
-    .rec-step.rev .rec-step-n { color:#1d4ed8; }
-    .rec-step.con .rec-step-n { color:#15803d; }
-    .rec-step p { font-size:.84rem; line-height:1.5; color:var(--navy); }
-
-    /* 3 EJEMPLOS */
-    #ejemplos { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; margin-bottom:14px; }
-    .ej-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
-    .ej-card { border-radius:10px; padding:14px 16px; border:1px solid; }
-    .ej-card.alto  { border-color:#fca5a5; background:#fef2f2; }
-    .ej-card.medio { border-color:#fdba74; background:#fff7ed; }
-    .ej-card.bajo  { border-color:#86efac; background:#f0fdf4; }
-    .ej-tag  { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
-    .ej-card.alto  .ej-tag { color:var(--R); }
-    .ej-card.medio .ej-tag { color:#c2410c; }
-    .ej-card.bajo  .ej-tag { color:var(--G); }
-    .ej-score { font-size:1.6rem; font-weight:900; margin-bottom:4px; }
-    .ej-card.alto  .ej-score { color:var(--R); }
-    .ej-card.medio .ej-score { color:var(--O); }
-    .ej-card.bajo  .ej-score { color:var(--G); }
-    .ej-handle { font-size:.82rem; font-weight:700; margin-bottom:6px; color:var(--navy); }
-    .ej-text { font-size:.78rem; color:var(--slate); font-style:italic; margin-bottom:8px; line-height:1.4; }
-    .ej-why  { font-size:.78rem; line-height:1.5; color:var(--navy2); }
-    .ej-why b { color:var(--navy); }
-
-    /* ANOTACION PICO */
-    #peak-note { background:#fef9c3; border:1px solid #fbbf24; border-radius:8px; padding:9px 14px; margin-top:10px; font-size:.82rem; color:#78350f; display:flex; gap:8px; align-items:flex-start; }
-
-
-    /* ── AUTOENCODER SECTION ─────────────────────────── */
-    #ae-section { background:#fff; border-radius:var(--r); box-shadow:var(--sh);
-                  padding:20px 24px; margin-bottom:18px;
-                  border-top:3px solid #7c3aed; }
-
-    .ae-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
-    .ae-header .stitle { margin-bottom:0; }
-    .ae-ml-badge { font-size:.62rem; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
-                   background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff;
-                   padding:3px 9px; border-radius:999px; }
-    .ae-tech-note { font-size:.68rem; color:var(--slate); margin-left:auto; }
-
-    /* Explain card */
-    .ae-explain { display:grid; grid-template-columns:auto 1fr auto; gap:16px;
-                  background:#faf5ff; border:1px solid #e9d5ff; border-radius:10px;
-                  padding:14px 18px; margin-bottom:16px; align-items:start; }
-    .ae-explain-icon { font-size:2rem; line-height:1; }
-    .ae-explain-txt h4 { font-size:.88rem; font-weight:700; color:#6d28d9; margin-bottom:5px; }
-    .ae-explain-txt p  { font-size:.81rem; color:#374151; line-height:1.58; }
-    .ae-arch-box { background:#fff; border:1px solid #ddd6fe; border-radius:8px;
-                   padding:10px 14px; text-align:center; min-width:160px; }
-    .ae-arch-title { font-size:.65rem; font-weight:700; text-transform:uppercase;
-                     letter-spacing:.6px; color:#7c3aed; margin-bottom:8px; }
-    .ae-arch-flow { display:flex; flex-direction:column; gap:3px; align-items:center; }
-    .ae-arch-node { font-size:.72rem; font-weight:700; padding:3px 12px;
-                    border-radius:6px; color:#fff; width:80px; text-align:center; }
-    .ae-arch-node.input    { background:#64748b; }
-    .ae-arch-node.enc      { background:#7c3aed; }
-    .ae-arch-node.bottleneck { background:#4f46e5; box-shadow:0 0 0 3px #c4b5fd; }
-    .ae-arch-node.dec      { background:#8b5cf6; }
-    .ae-arch-node.output   { background:#64748b; }
-    .ae-arch-arrow { font-size:.65rem; color:#a78bfa; line-height:1; }
-
-    /* Mid row */
-    .ae-mid { display:grid; grid-template-columns:1fr 320px; gap:14px; margin-bottom:14px; }
-    .ae-chart-wrap { }
-    .ae-right { display:flex; flex-direction:column; gap:10px; }
-
-    /* Metric mini cards */
-    .ae-metrics { display:flex; flex-direction:column; gap:8px; }
-    .ae-metric { border-radius:9px; padding:11px 14px; border:1px solid; display:flex; align-items:center; gap:12px; }
-    .ae-metric.corr { background:#f5f3ff; border-color:#ddd6fe; }
-    .ae-metric.anom { background:#fef2f2; border-color:#fecaca; }
-    .ae-metric.divg { background:#fffbeb; border-color:#fcd34d; }
-    .ae-metric-val { font-size:1.5rem; font-weight:900; line-height:1; flex-shrink:0; }
-    .ae-metric.corr .ae-metric-val { color:#7c3aed; }
-    .ae-metric.anom .ae-metric-val { color:#dc2626; }
-    .ae-metric.divg .ae-metric-val { color:#d97706; }
-    .ae-metric-txt .ae-metric-lbl { font-size:.7rem; font-weight:700; text-transform:uppercase;
-                                    letter-spacing:.4px; color:var(--slate); }
-    .ae-metric-txt .ae-metric-sub { font-size:.7rem; color:var(--slate); margin-top:1px; }
-
-    /* Star finding */
-    .ae-star { background:linear-gradient(135deg,#faf5ff,#eff6ff); border:1px solid #c4b5fd;
-               border-radius:9px; padding:12px 14px; }
-    .ae-star-tag { font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px;
-                   color:#7c3aed; margin-bottom:5px; }
-    .ae-star h5 { font-size:.84rem; font-weight:700; color:#0f172a; margin-bottom:4px; }
-    .ae-star p  { font-size:.77rem; color:#374151; line-height:1.5; }
-    .ae-star .ae-score-pair { display:flex; gap:14px; margin-top:8px; }
-    .ae-star .ae-sp-item { text-align:center; }
-    .ae-star .ae-sp-val { font-size:1.25rem; font-weight:900; }
-    .ae-star .ae-sp-val.bad  { color:#dc2626; }
-    .ae-star .ae-sp-val.good { color:#16a34a; }
-    .ae-star .ae-sp-lbl { font-size:.65rem; color:var(--slate); }
-
-    /* Divergent table */
-    .ae-div-wrap { }
-    .ae-div-table { width:100%; border-collapse:collapse; font-size:.79rem; }
-    .ae-div-table th { font-size:.67rem; font-weight:700; text-transform:uppercase;
-                       letter-spacing:.4px; color:var(--slate); padding:6px 8px;
-                       border-bottom:2px solid var(--border); text-align:left; white-space:nowrap; }
-    .ae-div-table td { padding:8px 8px; border-bottom:1px solid var(--border); vertical-align:middle; }
-    .ae-div-table tr.ae-star-row td { background:#faf5ff; }
-    .ae-div-table tr:last-child td { border-bottom:none; }
-    .ae-div-table tr:hover td { background:#f8fafc; }
-    .ae-div-table tr.ae-star-row:hover td { background:#f0e9ff; }
-    .ae-sc-ae  { font-weight:800; color:#dc2626; font-size:.88rem; }
-    .ae-sc-reg { font-weight:800; color:#16a34a; font-size:.88rem; }
-    .ae-sc-gap { font-size:.72rem; color:#7c3aed; font-weight:700; }
-    .ae-why    { font-size:.71rem; color:var(--slate); font-style:italic; line-height:1.4;
-                 max-width:240px; }
-
-    @media(max-width:860px){
-      .ae-explain { grid-template-columns:1fr; }
-      .ae-arch-box { display:none; }
-      .ae-mid { grid-template-columns:1fr; }
-      .ae-right { flex-direction:row; flex-wrap:wrap; }
-    }
-
-    @media(max-width:860px){
-      .dgrid,.row2,.row2b,.signals-grid { grid-template-columns:1fr; }
-      #cpanel { width:calc(100vw - 28px); right:14px; }
-    }
-    @media(min-width:600px) and (max-width:860px){
-      .signals-grid { grid-template-columns:repeat(2,1fr); }
-    }
-  </style>
+  @media(max-width:768px){
+    .charts-grid, .charts-grid-3, .kpi-grid, .explain-grid { grid-template-columns: 1fr; }
+    .decision-banner { flex-direction: column; }
+    .confianza-num { font-size: 2rem; }
+    .decision-value { font-size: 1.6rem; }
+  }
+</style>
 </head>
 <body>
 
-<header>
-  <div>
-    <div class="logo">SISTEMA <span>CANCELADO</span></div>
-    <div class="logo-sub">Análisis de señales de manipulación digital &middot; No determina verdad absoluta</div>
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-left">
+    <!-- Supabase logo SVG inline -->
+    <div class="supa-logo">
+      <svg viewBox="0 0 109 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M63.7 110.3c-2.6 3.3-8 1.5-8-2.7V69.2H18.5c-3.8 0-5.9-4.4-3.5-7.3L45.4 2.7c2.6-3.3 8-1.5 8 2.7v38.4h37.2c3.8 0 5.9 4.4 3.5 7.3L63.7 110.3z" fill="#3ECF8E"/>
+      </svg>
+      <span>Supabase Analytics</span>
+    </div>
+    <div>
+      <h1>Dashboard — Caso "Cancelado"</h1>
+      <span>Análisis de confiabilidad · Kai Duarte · Datos sintéticos</span>
+    </div>
   </div>
-  <div id="db-indicator">
-    <div class="db-dot" id="dbdot"></div>
-    <span id="dblabel">Conectando…</span>
-  </div>
-  <div class="hcontrols">
-    <select id="caso-select"><option>Caso Kai Duarte</option></select>
-    <button id="refresh-btn" onclick="cargarTodo()">↺ Actualizar</button>
-    <span id="ts">—</span>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="badge-live">
+      <span class="dot"></span>
+      <span id="last-update">Conectado · Actualizando…</span>
+    </div>
   </div>
 </header>
 
-<main>
-  <div id="notice"></div>
+<main class="main">
 
-  <!-- VEREDICTO -->
-  <div id="banner" class="dividida">
-    <div class="b-icon" id="bicono">⚖️</div>
-    <div class="b-txt">
-      <div class="b-tag">Decisión final del caso</div>
-      <div class="b-dec" id="bdec">EVIDENCIA DIVIDIDA</div>
-      <div class="b-certeza" id="bcerteza">Baja certeza — zona gris</div>
-      <div class="b-sub" id="bsub">Cancelar (38.1%) vs Mantener (36.4%): diferencia de solo 1.7 puntos porcentuales. No hay consenso claro en el dataset.</div>
-      <div class="b-rec" id="brec"><strong>Recomendación operativa:</strong> Bajar el video temporalmente. Activar revisión humana prioritaria. No tomar acciones contractuales hasta validar evidencia original en fuente.</div>
-      <div class="b-disc">Este sistema prioriza evidencia y señales de riesgo. No determina verdad absoluta.</div>
+  <!-- ===== BANNER DECISIÓN FINAL ===== -->
+  <div class="decision-banner amarillo" id="decision-banner">
+    <div>
+      <div class="decision-label">Recomendación del sistema</div>
+      <div class="decision-value amarillo" id="decision-text">Cargando…</div>
+      <div class="decision-sub" id="decision-sub">Basado en el análisis de <strong id="total-pub">—</strong> publicaciones</div>
     </div>
-    <div class="b-count" id="bcnt">3.210 publicaciones analizadas</div>
-  </div>
-
-  <!-- CARDS DE DECISIÓN -->
-  <div class="dgrid">
-    <div class="dcard cancelar">
-      <div class="dlabel">Cancelar</div>
-      <div class="dpct" id="pct-c">38.1%</div>
-      <div class="dcnt" id="cnt-c">1.223 publicaciones</div>
-      <div class="dbar"><div class="dfill" id="bar-c" style="width:38.1%"></div></div>
+    <div>
+      <div class="tres-decisiones" id="tres-barras" style="width:320px;">
+        <div class="dec-bar" id="bar-cancelar" style="background:var(--rojo);width:33%">—</div>
+        <div class="dec-bar" id="bar-bajar"    style="background:var(--amarillo);width:33%">—</div>
+        <div class="dec-bar" id="bar-mantener" style="background:var(--verde);width:33%">—</div>
+      </div>
+      <div class="dec-labels" style="margin-top:6px;">
+        <span class="dec-lbl"><span class="dec-dot" style="background:var(--rojo)"></span> Cancelar</span>
+        <span class="dec-lbl"><span class="dec-dot" style="background:var(--amarillo)"></span> Bajar video</span>
+        <span class="dec-lbl"><span class="dec-dot" style="background:var(--verde)"></span> Mantener</span>
+      </div>
     </div>
-    <div class="dcard bajar_video">
-      <div class="dlabel">Bajar Video</div>
-      <div class="dpct" id="pct-b">25.5%</div>
-      <div class="dcnt" id="cnt-b">819 publicaciones</div>
-      <div class="dbar"><div class="dfill" id="bar-b" style="width:25.5%"></div></div>
-    </div>
-    <div class="dcard mantener">
-      <div class="dlabel">Mantener</div>
-      <div class="dpct" id="pct-m">36.4%</div>
-      <div class="dcnt" id="cnt-m">1.168 publicaciones</div>
-      <div class="dbar"><div class="dfill" id="bar-m" style="width:36.4%"></div></div>
+    <div class="decision-right">
+      <div class="confianza-num" id="confianza-num">—%</div>
+      <div class="confianza-label">de las publicaciones apoyan<br>esta decisión</div>
     </div>
   </div>
 
-  <!-- SEÑALES CLAVE -->
-  <div class="signals-grid">
-    <div class="signal-card red">
-      <div class="sig-icon">🤖</div>
-      <div class="sig-val">232 pubs · 7.2%</div>
-      <div class="sig-label" style="color:#dc2626;">Bots detectados</div>
-      <div class="sig-interp">100% recomiendan cancelar — mediana sospecha 82.6</div>
+  <!-- ===== KPI GRID ===== -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon">📰</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+      <div class="kpi-label">Publicaciones analizadas</div>
+      <div class="kpi-sub" id="kpi-periodo">—</div>
     </div>
-    <div class="signal-card orange">
-      <div class="sig-icon">♻️</div>
-      <div class="sig-val">190 pubs · 5.9%</div>
-      <div class="sig-label" style="color:#ea580c;">Contenido reciclado</div>
-      <div class="sig-interp">Manipulación directa detectada — textos de escándalo 2023</div>
+    <div class="kpi-card">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-value" id="kpi-score">—</div>
+      <div class="kpi-label">Score de Confiabilidad promedio</div>
+      <div class="kpi-sub">Escala 0–100 (zona amarilla)</div>
     </div>
-    <div class="signal-card amber">
-      <div class="sig-icon">⏰</div>
-      <div class="sig-val">38% del total en 1h</div>
-      <div class="sig-label" style="color:#d97706;">Pico 3:00 AM</div>
-      <div class="sig-interp">Posible amplificación coordinada — no orgánica</div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🔴</div>
+      <div class="kpi-value" id="kpi-sospecha">—</div>
+      <div class="kpi-label">Índice de Sospecha promedio</div>
+      <div class="kpi-sub">Escala 0–1 (1 = máxima sospecha)</div>
     </div>
-    <div class="signal-card blue">
-      <div class="sig-icon">🔗</div>
-      <div class="sig-val">58.8% de pubs</div>
-      <div class="sig-label" style="color:#2563eb;">Sin corroboración</div>
-      <div class="sig-interp">Mayoría de publicaciones sin respaldo independiente</div>
-    </div>
-    <div class="signal-card green">
-      <div class="sig-icon">✅</div>
-      <div class="sig-val">93.8% en "mantener"</div>
-      <div class="sig-label" style="color:#16a34a;">Fuentes verificadas</div>
-      <div class="sig-interp">Cuentas verificadas no alertan riesgo real</div>
+    <div class="kpi-card">
+      <div class="kpi-icon">⚠️</div>
+      <div class="kpi-value" id="kpi-cancelar-n">—</div>
+      <div class="kpi-label">Pub. en zona Cancelar</div>
+      <div class="kpi-sub">Score &lt; 40</div>
     </div>
   </div>
 
-  <!-- HALLAZGOS CLAVE -->
-  <div id="hallazgos">
-    <div class="stitle">Hallazgos clave del análisis</div>
-    <ul class="hallazgo-list">
-      <li><span class="hi">🔴</span><span><strong>Alta actividad de bots:</strong> 232 cuentas marcadas como Bot_Sospechoso generaron el 100% de su contenido con Índice de Sospecha superior a 80. Son la señal más clara y verificable del dataset.</span></li>
-      <li><span class="hi">🟡</span><span><strong>Pico de 3 AM:</strong> el 38% de las publicaciones surgió en una sola hora, patrón consistente con amplificación coordinada — no con actividad orgánica de usuarios reales.</span></li>
-      <li><span class="hi">🔴</span><span><strong>Contenido reciclado:</strong> 190 publicaciones son texto idéntico o similar a un escándalo de 2023 con otro creador. Si se confirma, es evidencia directa de fabricación.</span></li>
-      <li><span class="hi">🟢</span><span><strong>Cuentas verificadas tranquilas:</strong> el 93.8% de publicaciones de perfiles Verificados recomienda "mantener". No hay señal de alerta real en fuentes primarias.</span></li>
-      <li><span class="hi">⚖️</span><span><strong>Decisión dividida:</strong> la diferencia entre "cancelar" y "mantener" es de solo 1.7 puntos porcentuales — no hay consenso claro. La decisión requiere validación humana antes de acciones contractuales.</span></li>
-    </ul>
-  </div>
-
-
-  <!-- AUTOENCODER -->
-  <div id="ae-section">
-
-    <div class="ae-header">
-      <div class="stitle">Autoencoder &mdash; Detector de Anomal&iacute;as sin Etiquetas</div>
-      <span class="ae-ml-badge">ML</span>
-      <span class="ae-tech-note">sklearn MLPRegressor &middot; 20 features &middot; 107 iter. &middot; loss 0.027</span>
+  <!-- ===== GRÁFICAS FILA 1 ===== -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Distribución del Score de Confiabilidad</h3>
+      <p>Semáforo: rojo &lt;40 · amarillo 40–65 · verde &gt;65</p>
+      <div class="chart-wrap"><canvas id="chartScore" height="220"></canvas></div>
     </div>
-
-    <!-- Explicacion + Arquitectura -->
-    <div class="ae-explain">
-      <div class="ae-explain-icon">&#129504;</div>
-      <div class="ae-explain-txt">
-        <h4>Aprende qu&eacute; es comportamiento normal y detecta lo que no encaja</h4>
-        <p>
-          Se entren&oacute; <strong>solo con las 1.298 publicaciones de cuentas Verificadas y Fan_Antiguo</strong>.
-          Aprendi&oacute; qu&eacute; combinaci&oacute;n de plataforma, tipo de publicaci&oacute;n, antig&uuml;edad, interacciones y
-          velocidad define el comportamiento <em>normal</em>. Luego intent&oacute; reconstruir cada una de las
-          3.210 publicaciones con ese conocimiento. Cuanto mayor el error de reconstrucci&oacute;n,
-          m&aacute;s an&oacute;mala es esa publicaci&oacute;n. <strong>Sin reglas. Sin etiquetas. El patr&oacute;n emerge solo.</strong>
-        </p>
-      </div>
-      <div class="ae-arch-box">
-        <div class="ae-arch-title">Arquitectura</div>
-        <div class="ae-arch-flow">
-          <div class="ae-arch-node input">20 entradas</div>
-          <div class="ae-arch-arrow">&#8595; encoder</div>
-          <div class="ae-arch-node enc">12</div>
-          <div class="ae-arch-arrow">&#8595;</div>
-          <div class="ae-arch-node enc">6</div>
-          <div class="ae-arch-arrow">&#8595;</div>
-          <div class="ae-arch-node bottleneck">3 &#128274;</div>
-          <div class="ae-arch-arrow">&#8595; decoder</div>
-          <div class="ae-arch-node dec">6</div>
-          <div class="ae-arch-arrow">&#8595;</div>
-          <div class="ae-arch-node dec">12</div>
-          <div class="ae-arch-arrow">&#8595;</div>
-          <div class="ae-arch-node output">20 salidas</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Grafica + Metricas + Hallazgo estrella -->
-    <div class="ae-mid">
-      <div class="ae-chart-wrap card" style="padding:16px 18px">
-        <div class="stitle" style="margin-bottom:10px">
-          Puntuaci&oacute;n mediana por tipo de cuenta
-          <span style="font-size:.68rem;font-weight:400;color:var(--slate);text-transform:none;letter-spacing:0">&nbsp;&mdash;&nbsp;AE vs Reglas</span>
-        </div>
-        <canvas id="ch-ae" height="190"></canvas>
-        <p style="font-size:.72rem;color:var(--slate);margin-top:8px;line-height:1.5">
-          El AE empuja a los an&oacute;malos <strong>m&aacute;s arriba</strong> y a los normales <strong>m&aacute;s abajo</strong>
-          que las reglas &mdash; es m&aacute;s discriminante en ambas direcciones.
-        </p>
-      </div>
-
-      <div class="ae-right">
-        <div class="ae-metrics">
-          <div class="ae-metric corr">
-            <div class="ae-metric-val">0.797</div>
-            <div class="ae-metric-txt">
-              <div class="ae-metric-lbl">Correlaci&oacute;n AE &harr; Reglas</div>
-              <div class="ae-metric-sub">Coinciden en el 80% del dataset</div>
-            </div>
-          </div>
-          <div class="ae-metric anom">
-            <div class="ae-metric-val">1.640</div>
-            <div class="ae-metric-txt">
-              <div class="ae-metric-lbl">Publicaciones an&oacute;malas</div>
-              <div class="ae-metric-sub">Score AE &gt; 50 sobre 3.210 total</div>
-            </div>
-          </div>
-          <div class="ae-metric divg">
-            <div class="ae-metric-val">5</div>
-            <div class="ae-metric-txt">
-              <div class="ae-metric-lbl">Casos divergentes</div>
-              <div class="ae-metric-sub">AE detecta, reglas ignoraban</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="ae-star">
-          <div class="ae-star-tag">&#11088; Hallazgo estrella del modelo</div>
-          <h5>@tatianalopez_ &mdash; ID&nbsp;2219</h5>
-          <p>Las reglas la ignoran casi por completo. El AE la marca como <strong>altamente an&oacute;mala</strong>:
-          su combinaci&oacute;n de plataforma, tipo de publicaci&oacute;n y horarios es estad&iacute;sticamente
-          imposible de reconstruir desde el baseline normal.</p>
-          <div class="ae-score-pair">
-            <div class="ae-sp-item">
-              <div class="ae-sp-val bad">83.3</div>
-              <div class="ae-sp-lbl">Score AE</div>
-            </div>
-            <div class="ae-sp-item" style="display:flex;align-items:center;font-size:1.2rem;color:#a78bfa;font-weight:900;padding-top:4px">vs</div>
-            <div class="ae-sp-item">
-              <div class="ae-sp-val good">19.7</div>
-              <div class="ae-sp-lbl">Reglas</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabla casos divergentes -->
-    <div class="ae-div-wrap">
-      <div class="stitle" style="margin-bottom:10px">
-        Publicaciones que el AE detect&oacute; y las reglas ignoraban
-        <span style="font-size:.68rem;font-weight:400;color:var(--slate);text-transform:none;letter-spacing:0">&nbsp;&mdash;&nbsp;score AE &gt; 50 &amp; reglas &lt; 30</span>
-      </div>
-      <table class="ae-div-table">
-        <thead><tr>
-          <th>ID</th><th>Handle</th><th>Plataforma</th><th>Perfil</th>
-          <th>Score AE</th><th>Reglas</th><th>Diferencia</th><th>Por qu&eacute; lo detect&oacute;</th>
-        </tr></thead>
-        <tbody id="ae-div-body"></tbody>
-      </table>
-    </div>
-
-  </div>
-
-  <!-- GRÁFICAS -->
-  <div class="row2">
-    <div class="card">
-      <div class="stitle">Publicaciones por hora del evento <span class="src-badge" id="badge-tl">análisis</span></div>
-      <canvas id="ch-tl" height="200"></canvas>
-      <div id="peak-note">
-        <span>⚠️</span>
-        <span><strong>Pico a las 3:00 AM:</strong> el 38% del total de publicaciones surgió en 60 minutos. Este patrón es estadísticamente anómalo y consistente con amplificación coordinada, no con actividad orgánica.</span>
-      </div>
-    </div>
-    <div class="card">
-      <div class="stitle">Distribución por plataforma <span class="src-badge" id="badge-pl">análisis</span></div>
-      <canvas id="ch-pl" height="200"></canvas>
+    <div class="chart-card">
+      <h3>Publicaciones por plataforma</h3>
+      <p>Total y Score promedio por red social</p>
+      <div class="chart-wrap"><canvas id="chartPlataforma" height="220"></canvas></div>
     </div>
   </div>
 
-  <!-- SEMÁFORO + CUENTAS -->
-  <div class="row2b">
-    <div class="card">
-      <div class="stitle">Semáforo de Score de Confiabilidad <span class="src-badge" id="badge-sf">análisis</span></div>
-      <div id="semaforo"></div>
+  <!-- ===== LÍNEA DE TIEMPO ===== -->
+  <div class="charts-grid-3">
+    <div class="chart-card">
+      <h3>Línea de tiempo del escándalo</h3>
+      <p>Actividad total vs. publicaciones en zona "Cancelar" · bloques de 5 min</p>
+      <div class="chart-wrap"><canvas id="chartTiempo" height="200"></canvas></div>
     </div>
-    <div class="card" style="overflow-x:auto">
-      <div class="stitle">Top 10 cuentas más sospechosas <span class="src-badge" id="badge-cu">análisis</span></div>
-      <table class="tbl">
-        <thead><tr><th>Usuario</th><th>Perfil</th><th>Índice de Sospecha prom.</th><th>Decisión</th><th>Motivo principal</th></tr></thead>
-        <tbody id="tb-cuentas"></tbody>
+    <div class="chart-card">
+      <h3>Por tipo de publicación</h3>
+      <p>Peso_Prueba promedio por tipo</p>
+      <div class="chart-wrap"><canvas id="chartTipo" height="200"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ===== EXPLICABILIDAD ===== -->
+  <div class="chart-card" style="margin-bottom:24px;">
+    <h3>¿Por qué se recomienda <span id="explain-decision-name">esta decisión</span>?</h3>
+    <p style="margin-bottom:16px;">Contribución de cada variable al Score de Confiabilidad (ponderación del modelo)</p>
+    <div class="explain-grid" id="explain-grid">
+      <!-- generado por JS -->
+    </div>
+  </div>
+
+  <!-- ===== RANKING CUENTAS ===== -->
+  <div class="chart-card" style="margin-bottom:24px;">
+    <h3>Ranking de cuentas más sospechosas</h3>
+    <p>Usuarios con mayor Índice de Sospecha promedio (mín. 2 publicaciones)</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Usuario</th><th>Plataforma</th><th>Perfil</th>
+            <th>Pub.</th><th>Índice Sospecha</th><th>Score Conf.</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-cuentas"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- TOP PUBLICACIONES -->
-  <div class="card" style="overflow-x:auto; margin-bottom:14px">
-    <div class="stitle">Top 10 publicaciones más sospechosas <span class="src-badge" id="badge-pu">análisis</span></div>
-    <table class="tbl">
-      <thead><tr><th>ID</th><th>Usuario</th><th>Plataforma</th><th>Perfil</th><th>Texto</th><th>Índice de Sospecha</th><th>Score de Confiabilidad</th><th>Decisión</th><th>Señales activas</th></tr></thead>
-      <tbody id="tb-pubs"></tbody>
-    </table>
+  <!-- ===== MUESTRAS POR ZONA ===== -->
+  <div class="chart-card" style="margin-bottom:24px;">
+    <h3>Ejemplos de publicaciones por zona</h3>
+    <p>5 publicaciones representativas de cada decisión semáforo</p>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('cancelar')">🔴 Cancelar</button>
+      <button class="tab-btn" onclick="showTab('bajar')">🟡 Bajar el video</button>
+      <button class="tab-btn" onclick="showTab('mantener')">🟢 Mantener</button>
+    </div>
+    <div id="tab-cancelar"  class="tab-panel active"></div>
+    <div id="tab-bajar"     class="tab-panel"></div>
+    <div id="tab-mantener"  class="tab-panel"></div>
   </div>
+
+  <!-- ===== POR PERFIL ===== -->
+  <div class="chart-card" style="margin-bottom:24px;">
+    <h3>Distribución por perfil de usuario</h3>
+    <p>Número de publicaciones y Score promedio</p>
+    <div style="max-width:600px;margin:0 auto;">
+      <canvas id="chartPerfil" height="180"></canvas>
+    </div>
+  </div>
+
 </main>
 
-<!-- CHATBOT -->
-<button id="ctrig" onclick="toggleChat()">💬 Asistente</button>
-<div id="cpanel">
-  <div class="chdr">Asistente — Caso Kai Duarte <button class="cclose" onclick="toggleChat()">✕</button></div>
-  <div id="cmsgs"></div>
-  <div class="chips">
-    <span class="chip" onclick="chip('¿Cómo funciona el sistema?')">¿Cómo funciona?</span>
-    <span class="chip" onclick="chip('¿Qué es el Indice_Sospecha?')">Índice de Sospecha</span>
-    <span class="chip" onclick="chip('¿Por qué evidencia dividida?')">¿Por qué evidencia dividida?</span>
-    <span class="chip" onclick="chip('¿Cuántos bots hay?')">Bots detectados</span>
-    <span class="chip" onclick="chip('¿Qué señala el pico de las 3 AM?')">Pico 3 AM</span>
-    <span class="chip" onclick="chip('¿Qué es contenido reciclado?')">Contenido reciclado</span>
-    <span class="chip" onclick="chip('¿Cuál es la recomendación concreta?')">Recomendación concreta</span>
-    <span class="chip" onclick="chip('¿Por qué no Machine Learning?')">¿Sin ML?</span>
-  </div>
-  <div class="cinput-row">
-    <input id="cinput" type="text" placeholder="Escribe tu pregunta…" onkeydown="if(event.key==='Enter')enviar()"/>
-    <button id="csend" onclick="enviar()">Enviar</button>
-  </div>
-</div>
+<footer class="footer">
+  Dashboard generado automáticamente · <strong>Caso "Cancelado" — Kai Duarte</strong> ·
+  Datos sintéticos con fines académicos ·
+  <a href="https://github.com/Andrespadgu/deteccion-desinformacion" target="_blank">Ver repositorio</a>
+</footer>
 
 <script>
-/* ══════════════════════════════════════════════════════════════
-   SUPABASE
-══════════════════════════════════════════════════════════════ */
-const SB_URL = 'https://vuczxmesylxlltlsabpo.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1Y3p4bWVzeWx4bGx0bHNhYnBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNTk2NDcsImV4cCI6MjEwMzkzNTY0N30.h3GIjP-fIXyoWauS1J9vRx5okIHoxgZ9cCgm_q7OXhk';
+// ================================================================
+// DATOS: leer outputs/resultados.json o usar los embebidos
+// ================================================================
+let DATOS = null;
 
-let sb = null;
-let dbLive = false;
-
-try {
-  const { createClient } = window.supabase;
-  sb = createClient(SB_URL, SB_KEY);
-} catch(e) {
-  console.warn('Supabase no cargó:', e);
-}
-
-/* ══════════════════════════════════════════════════════════════
-   DATOS ESTÁTICOS DE FALLBACK
-   (resultado validado por data-scientist en Python con BASE.csv)
-══════════════════════════════════════════════════════════════ */
-const STATIC = {
-  decisiones: [
-    { decision:'cancelar',    n_publicaciones:1223, porcentaje:38.1 },
-    { decision:'bajar_video', n_publicaciones:819,  porcentaje:25.5 },
-    { decision:'mantener',    n_publicaciones:1168, porcentaje:36.4 },
-  ],
-  plataformas: [
-    { plataforma:'X',              n_publicaciones:1442, n_cancelar:712, n_bajar_video:344, n_mantener:386 },
-    { plataforma:'TikTok',         n_publicaciones:894,  n_cancelar:342, n_bajar_video:220, n_mantener:332 },
-    { plataforma:'Instagram',      n_publicaciones:667,  n_cancelar:134, n_bajar_video:201, n_mantener:332 },
-    { plataforma:'Foro anónimo',   n_publicaciones:207,  n_cancelar:35,  n_bajar_video:54,  n_mantener:118 },
-  ],
-  timeline: [
-    { hora_label:'23:00', n_cancelar:102, n_bajar_video:58,  n_mantener:89  },
-    { hora_label:'00:00', n_cancelar:348, n_bajar_video:218, n_mantener:285 },
-    { hora_label:'01:00', n_cancelar:201, n_bajar_video:124, n_mantener:178 },
-    { hora_label:'02:00', n_cancelar:187, n_bajar_video:115, n_mantener:152 },
-    { hora_label:'03:00', n_cancelar:198, n_bajar_video:148, n_mantener:174 },
-    { hora_label:'04:00', n_cancelar:121, n_bajar_video:89,  n_mantener:148 },
-    { hora_label:'05:00', n_cancelar:66,  n_bajar_video:67,  n_mantener:142 },
-  ],
-  semaforo: [
-    { rango_confiabilidad:'0-20 (Muy baja)',   n_publicaciones:412,  porcentaje:12.8 },
-    { rango_confiabilidad:'20-40 (Baja)',       n_publicaciones:687,  porcentaje:21.4 },
-    { rango_confiabilidad:'40-60 (Media)',      n_publicaciones:1104, porcentaje:34.4 },
-    { rango_confiabilidad:'60-80 (Alta)',       n_publicaciones:721,  porcentaje:22.5 },
-    { rango_confiabilidad:'80-100 (Muy alta)', n_publicaciones:286,  porcentaje:8.9  },
-  ],
-  cuentas: [
-    { usuario_handle:'@despiertaya_760',  perfil_usuario:'Bot_Sospechoso', sospecha_promedio:85.9, n_cancelar:3,  n_bajar_video:0 },
-    { usuario_handle:'@alerta_fake01',    perfil_usuario:'Bot_Sospechoso', sospecha_promedio:83.1, n_cancelar:2,  n_bajar_video:0 },
-    { usuario_handle:'@newuser_2024xz',   perfil_usuario:'Cuenta_Nueva',   sospecha_promedio:74.2, n_cancelar:4,  n_bajar_video:1 },
-    { usuario_handle:'@void_account_99',  perfil_usuario:'Bot_Sospechoso', sospecha_promedio:73.8, n_cancelar:2,  n_bajar_video:0 },
-    { usuario_handle:'@anon_foro_33',     perfil_usuario:'Anónimo',        sospecha_promedio:62.4, n_cancelar:1,  n_bajar_video:2 },
-    { usuario_handle:'@nuevacuenta_hoy',  perfil_usuario:'Cuenta_Nueva',   sospecha_promedio:61.0, n_cancelar:3,  n_bajar_video:0 },
-    { usuario_handle:'@shadow_post_x',    perfil_usuario:'Bot_Sospechoso', sospecha_promedio:58.7, n_cancelar:1,  n_bajar_video:1 },
-    { usuario_handle:'@tempuser_8821',    perfil_usuario:'Cuenta_Nueva',   sospecha_promedio:57.3, n_cancelar:2,  n_bajar_video:1 },
-    { usuario_handle:'@anon_rumors_22',   perfil_usuario:'Anónimo',        sospecha_promedio:54.1, n_cancelar:1,  n_bajar_video:1 },
-    { usuario_handle:'@fast_spread_01',   perfil_usuario:'Bot_Sospechoso', sospecha_promedio:51.9, n_cancelar:2,  n_bajar_video:0 },
-  ],
-  pubs: [
-    { id_publicacion:2440, usuario_handle:'@despiertaya_760', plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'#CancelenAKai — KAI ES CULPABLE',                                    indice_sospecha:85.9, score_confiabilidad:8.2,  decision:'cancelar', contenido_reciclado:true,  velocidad_viral:true,  corroboraciones:0 },
-    { id_publicacion:1877, usuario_handle:'@alerta_fake01',   plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'PRUEBA DEL FRAUDE: video confirma que Kai amanó el sorteo',         indice_sospecha:83.4, score_confiabilidad:9.1,  decision:'cancelar', contenido_reciclado:true,  velocidad_viral:true,  corroboraciones:0 },
-    { id_publicacion:3101, usuario_handle:'@newuser_2024xz',  plataforma:'TikTok',       perfil_usuario:'Cuenta_Nueva',   texto_truncado:'Mi amigo estuvo ahí, confirma que el sorteo fue arreglado',        indice_sospecha:78.2, score_confiabilidad:12.4, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
-    { id_publicacion:667,  usuario_handle:'@void_account_99', plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'#CancelenAKai #KaiMentiroso — COMPARTE ESTO',                      indice_sospecha:76.1, score_confiabilidad:7.8,  decision:'cancelar', contenido_reciclado:true,  velocidad_viral:true,  corroboraciones:0 },
-    { id_publicacion:2209, usuario_handle:'@anon_foro_33',    plataforma:'Foro anónimo', perfil_usuario:'Anónimo',        texto_truncado:'Fuente interna dice que el ganador fue seleccionado antes del live', indice_sospecha:71.3, score_confiabilidad:18.6, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
-    { id_publicacion:412,  usuario_handle:'@nuevacuenta_hoy', plataforma:'Instagram',    perfil_usuario:'Cuenta_Nueva',   texto_truncado:'Transcripción de audio: se escucha cómo coordinan el fraude',      indice_sospecha:68.9, score_confiabilidad:11.2, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
-    { id_publicacion:1590, usuario_handle:'@shadow_post_x',   plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'#FueraKai — el clip prueba todo. RT masivo',                       indice_sospecha:65.4, score_confiabilidad:9.9,  decision:'cancelar', contenido_reciclado:false, velocidad_viral:true,  corroboraciones:0 },
-    { id_publicacion:889,  usuario_handle:'@tempuser_8821',   plataforma:'TikTok',       perfil_usuario:'Cuenta_Nueva',   texto_truncado:'Alguien del equipo de Kai me dijo que es todo armado',             indice_sospecha:62.1, score_confiabilidad:14.3, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
-    { id_publicacion:2778, usuario_handle:'@anon_rumors_22',  plataforma:'Foro anónimo', perfil_usuario:'Anónimo',        texto_truncado:'El código del sorteo fue modificado 2 horas antes. Pantallazos',   indice_sospecha:59.8, score_confiabilidad:21.0, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
-    { id_publicacion:304,  usuario_handle:'@fast_spread_01',  plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'VIRAL: Kai admite en privado que el sorteo era falso. ¡Compartan!', indice_sospecha:57.2, score_confiabilidad:8.7,  decision:'cancelar', contenido_reciclado:true,  velocidad_viral:true,  corroboraciones:0 },
-  ],
-};
-
-/* ══════════════════════════════════════════════════════════════
-   DOM REFS
-══════════════════════════════════════════════════════════════ */
-const $ = id => document.getElementById(id);
-
-/* ══════════════════════════════════════════════════════════════
-   INDICADOR DB
-══════════════════════════════════════════════════════════════ */
-function setDbStatus(live, msg) {
-  dbLive = live;
-  $('dbdot').className   = 'db-dot ' + (live ? 'live' : 'err');
-  $('dblabel').textContent = msg;
-  document.querySelectorAll('.src-badge').forEach(b => {
-    b.textContent = live ? 'en vivo' : 'análisis';
-    b.className   = 'src-badge ' + (live ? 'live' : '');
-  });
-}
-
-function setNotice(tipo, msg) {
-  const n = $('notice');
-  n.className  = 'notice show ' + tipo;
-  n.textContent = msg;
-  n.style.display = 'flex';
-}
-function clearNotice() { $('notice').style.display = 'none'; }
-
-/* ══════════════════════════════════════════════════════════════
-   RENDER DECISIONES — con lógica de certeza y spread
-══════════════════════════════════════════════════════════════ */
-function renderDecisiones(data) {
-  const m = {};
-  data.forEach(r => { m[r.decision] = r; });
-  const c  = m.cancelar    || { n_publicaciones:0, porcentaje:0 };
-  const b  = m.bajar_video || { n_publicaciones:0, porcentaje:0 };
-  const mn = m.mantener    || { n_publicaciones:0, porcentaje:0 };
-
-  $('pct-c').textContent = (+c.porcentaje).toFixed(1) + '%';
-  $('cnt-c').textContent = (+c.n_publicaciones).toLocaleString('es-CO') + ' publicaciones';
-  $('bar-c').style.width = c.porcentaje + '%';
-
-  $('pct-b').textContent = (+b.porcentaje).toFixed(1) + '%';
-  $('cnt-b').textContent = (+b.n_publicaciones).toLocaleString('es-CO') + ' publicaciones';
-  $('bar-b').style.width = b.porcentaje + '%';
-
-  $('pct-m').textContent = (+mn.porcentaje).toFixed(1) + '%';
-  $('cnt-m').textContent = (+mn.n_publicaciones).toLocaleString('es-CO') + ' publicaciones';
-  $('bar-m').style.width = mn.porcentaje + '%';
-
-  const total = (+c.n_publicaciones) + (+b.n_publicaciones) + (+mn.n_publicaciones);
-
-  // Calcular spread: diferencia entre el mayor y el segundo mayor
-  const pcts = [
-    { key:'cancelar',    pct:+c.porcentaje },
-    { key:'bajar_video', pct:+b.porcentaje },
-    { key:'mantener',    pct:+mn.porcentaje },
-  ].sort((a, bb) => bb.pct - a.pct);
-
-  const winner = pcts[0];
-  const spread = pcts[0].pct - pcts[1].pct;
-
-  const banner = $('banner');
-  let dec, icono, cls, certeza, sub, rec;
-
-  if (spread < 5) {
-    // Zona gris — evidencia dividida
-    cls     = 'dividida';
-    icono   = '⚖️';
-    dec     = 'EVIDENCIA DIVIDIDA';
-    certeza = 'Baja certeza — zona gris';
-    sub     = 'Cancelar (' + (+c.porcentaje).toFixed(1) + '%) vs Mantener (' + (+mn.porcentaje).toFixed(1) + '%): diferencia de solo ' + spread.toFixed(1) + ' puntos porcentuales. No hay consenso claro en el dataset.';
-    rec     = 'Bajar el video temporalmente. Activar revisión humana prioritaria. No tomar acciones contractuales hasta validar evidencia original en fuente.';
-  } else {
-    if (winner.key === 'cancelar') {
-      cls   = 'cancelar';
-      icono = '⛔';
-      dec   = 'CANCELAR';
-      sub   = (+c.porcentaje).toFixed(1) + '% de las publicaciones presentan señales de sospecha alta. Se recomienda acción contractual.';
-      rec   = 'Proceder con notificación a PulsoTech, UrbanKrew y NovaVolt. Documentar las 232 publicaciones de bots y las 190 de contenido reciclado como evidencia central.';
-    } else if (winner.key === 'bajar_video') {
-      cls   = 'bajar_video';
-      icono = '⚠️';
-      dec   = 'BAJAR EL VIDEO';
-      sub   = (+b.porcentaje).toFixed(1) + '% en zona gris. Retirar el contenido sin acciones contractuales.';
-      rec   = 'Retirar el video de circulación y dejar en revisión. No tomar acciones legales hasta tener más corroboraciones independientes.';
-    } else {
-      cls   = 'mantener';
-      icono = '✅';
-      dec   = 'MANTENER';
-      sub   = (+mn.porcentaje).toFixed(1) + '% no muestra evidencia accionable. Las fuentes verificadas no alertan riesgo real.';
-      rec   = 'No tomar acciones. Monitorear el volumen de bots y contenido reciclado en las próximas horas.';
-    }
-    certeza = spread < 15 ? 'Certeza moderada' : 'Alta certeza';
+async function cargarDatos() {
+  try {
+    const resp = await fetch('outputs/resultados.json');
+    if (!resp.ok) throw new Error('no json');
+    DATOS = await resp.json();
+  } catch(e) {
+    // Fallback: datos embebidos (generados por el notebook)
+    DATOS = DATOS_EMBEBIDOS;
   }
-
-  banner.className      = cls;
-  $('bicono').textContent   = icono;
-  $('bdec').textContent     = dec;
-  $('bcerteza').textContent = certeza;
-  $('bsub').textContent     = sub;
-  $('brec').innerHTML       = '<strong>Recomendación operativa:</strong> ' + rec;
-  $('bcnt').textContent     = total.toLocaleString('es-CO') + ' publicaciones analizadas';
+  renderizar();
 }
 
-/* ══════════════════════════════════════════════════════════════
-   GRÁFICAS
-══════════════════════════════════════════════════════════════ */
-let chTL = null, chPL = null;
+// ================================================================
+// RENDER PRINCIPAL
+// ================================================================
+function renderizar() {
+  const d = DATOS;
+  const r = d.resumen;
+  const pct = r.decision;
 
-function renderTimeline(data) {
-  const labels  = data.map(r => r.hora_label || '');
-  const cData   = data.map(r => +(r.n_cancelar    || 0));
-  const bData   = data.map(r => +(r.n_bajar_video  || 0));
-  const mData   = data.map(r => +(r.n_mantener     || 0));
-  const ctx = $('ch-tl').getContext('2d');
-  if (chTL) chTL.destroy();
-  chTL = new Chart(ctx, {
-    type:'line',
-    data:{ labels, datasets:[
-      { label:'Cancelar',    data:cData, borderColor:'#dc2626', backgroundColor:'rgba(220,38,38,.12)', fill:true, tension:.3, pointRadius:3 },
-      { label:'Bajar video', data:bData, borderColor:'#ea580c', backgroundColor:'rgba(234,88,12,.08)', fill:true, tension:.3, pointRadius:3 },
-      { label:'Mantener',    data:mData, borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,.08)', fill:true, tension:.3, pointRadius:3 },
-    ]},
-    options:{
-      responsive:true,
-      interaction:{ mode:'index', intersect:false },
-      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:11, font:{ size:11 } } } },
-      scales:{
-        x:{ ticks:{ font:{ size:10 }, maxRotation:45 }, grid:{ display:false } },
-        y:{ beginAtZero:true, ticks:{ font:{ size:11 } } },
-      },
-    },
+  // Actualizar timestamp simulado
+  document.getElementById('last-update').textContent =
+    'Conectado · ' + new Date().toLocaleTimeString('es-CO', {hour:'2-digit',minute:'2-digit'});
+
+  // Banner decisión
+  const decMap = {
+    'Cancelar'      : {cls:'rojo',    icon:'🚨'},
+    'Bajar el video': {cls:'amarillo', icon:'⚠️'},
+    'Mantener'      : {cls:'verde',    icon:'✅'},
+  };
+  const dec = decMap[pct.decision_final] || decMap['Bajar el video'];
+  const banner = document.getElementById('decision-banner');
+  banner.className = 'decision-banner ' + dec.cls;
+  document.getElementById('decision-text').textContent = dec.icon + '  ' + pct.decision_final.toUpperCase();
+  document.getElementById('decision-text').className = 'decision-value ' + dec.cls;
+  document.getElementById('decision-sub').innerHTML =
+    'Basado en el análisis de <strong>' + r.total_publicaciones.toLocaleString('es-CO') + '</strong> publicaciones';
+  document.getElementById('total-pub').textContent = r.total_publicaciones.toLocaleString('es-CO');
+  document.getElementById('confianza-num').textContent = pct.confianza_pct.toFixed(1) + '%';
+
+  // Barras 3 decisiones
+  document.getElementById('bar-cancelar').style.width = pct['Cancelar'] + '%';
+  document.getElementById('bar-cancelar').textContent = pct['Cancelar'].toFixed(1) + '%';
+  document.getElementById('bar-bajar').style.width = pct['Bajar el video'] + '%';
+  document.getElementById('bar-bajar').textContent = pct['Bajar el video'].toFixed(1) + '%';
+  document.getElementById('bar-mantener').style.width = pct['Mantener'] + '%';
+  document.getElementById('bar-mantener').textContent = pct['Mantener'].toFixed(1) + '%';
+
+  // KPIs
+  document.getElementById('kpi-total').textContent = r.total_publicaciones.toLocaleString('es-CO');
+  document.getElementById('kpi-periodo').textContent =
+    r.periodo_inicio.substring(11,16) + ' – ' + r.periodo_fin.substring(11,16) + ' (8 h)';
+  document.getElementById('kpi-score').textContent = r.score_promedio.toFixed(1) + ' / 100';
+  document.getElementById('kpi-sospecha').textContent = r.indice_sospecha_promedio.toFixed(3);
+
+  const cancelarN = d.distribucion_score
+    .filter(b => b.bin_inicio < 40)
+    .reduce((s,b) => s+b.conteo, 0);
+  document.getElementById('kpi-cancelar-n').textContent = cancelarN.toLocaleString('es-CO');
+
+  // ---- Gráfica Score (histograma semáforo) ----
+  const scoreLabels = d.distribucion_score.map(b => b.bin_inicio + '–' + b.bin_fin);
+  const scoreData   = d.distribucion_score.map(b => b.conteo);
+  const scoreColors = d.distribucion_score.map(b =>
+    b.bin_inicio < 40 ? 'rgba(217,83,79,.8)'
+    : b.bin_inicio < 65 ? 'rgba(240,165,0,.8)'
+    : 'rgba(58,170,92,.8)'
+  );
+  new Chart(document.getElementById('chartScore'), {
+    type: 'bar',
+    data: { labels: scoreLabels, datasets: [{ data: scoreData, backgroundColor: scoreColors, borderRadius: 3 }] },
+    options: {
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.raw + ' publicaciones' } } },
+      scales: {
+        y: { grid: { color: '#e0e6ed' } },
+        x: { ticks: { font: { size: 9 }, maxRotation: 45 }, grid: { display: false } }
+      }
+    }
   });
-}
 
-function renderPlataformas(data) {
-  const labels = data.map(r => r.plataforma || '—');
-  const ctx = $('ch-pl').getContext('2d');
-  if (chPL) chPL.destroy();
-  chPL = new Chart(ctx, {
-    type:'bar',
-    data:{ labels, datasets:[
-      { label:'Cancelar',    data:data.map(r=>+(r.n_cancelar||0)),    backgroundColor:'#dc2626' },
-      { label:'Bajar video', data:data.map(r=>+(r.n_bajar_video||0)), backgroundColor:'#ea580c' },
-      { label:'Mantener',    data:data.map(r=>+(r.n_mantener||0)),    backgroundColor:'#16a34a' },
-    ]},
-    options:{
-      responsive:true,
-      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:11, font:{ size:11 } } } },
-      scales:{
-        x:{ stacked:true, ticks:{ font:{ size:11 } }, grid:{ display:false } },
-        y:{ stacked:true, beginAtZero:true, ticks:{ font:{ size:11 } } },
-      },
-    },
-  });
-}
-
-const SF_COLORS = {
-  '0-20 (Muy baja)':   { fill:'#dc2626', dot:'#dc2626' },
-  '20-40 (Baja)':      { fill:'#ea580c', dot:'#ea580c' },
-  '40-60 (Media)':     { fill:'#facc15', dot:'#ca8a04' },
-  '60-80 (Alta)':      { fill:'#4ade80', dot:'#16a34a' },
-  '80-100 (Muy alta)': { fill:'#22c55e', dot:'#15803d' },
-};
-
-function renderSemaforo(data) {
-  const totalN = data.reduce((acc, r) => acc + +(r.n_publicaciones || 0), 0);
-  $('semaforo').innerHTML = data.map(r => {
-    const col = SF_COLORS[r.rango_confiabilidad] || { fill:'#94a3b8', dot:'#64748b' };
-    const pct = +(r.porcentaje || 0);
-    const n   = +(r.n_publicaciones || 0);
-    const pctLabel = totalN > 0 ? (n / totalN * 100).toFixed(1) : pct.toFixed(1);
-    return `<div class="sfitem">
-      <div class="sfdot" style="background:${col.dot}"></div>
-      <div class="sflbl">${r.rango_confiabilidad}</div>
-      <div class="sfbar"><div class="sfill" style="width:${pct}%;background:${col.fill}"></div></div>
-      <div class="sfcnt">${n.toLocaleString('es-CO')} pubs (${pctLabel}%)</div>
-    </div>`;
-  }).join('');
-}
-
-function bPerfil(p) {
-  p = p || '';
-  const l = p.toLowerCase();
-  if (l.includes('bot'))                      return `<span class="badge bot">Bot</span>`;
-  if (l.includes('nueva')||l.includes('new')) return `<span class="badge new">Nueva</span>`;
-  if (l.includes('verif'))                    return `<span class="badge ver">Verificado</span>`;
-  if (l.includes('fan'))                      return `<span class="badge fan">Fan</span>`;
-  return `<span class="badge anon">${p||'—'}</span>`;
-}
-
-function bDec(d) {
-  d = d || '';
-  const m = { cancelar:'Cancelar', bajar_video:'Bajar Video', mantener:'Mantener' };
-  return `<span class="badge ${d}">${m[d]||d||'—'}</span>`;
-}
-
-function clsScore(s) { return s >= 50 ? 'sh' : s >= 30 ? 'sm' : 'sl'; }
-
-function motivoPerfil(p) {
-  p = p || '';
-  const l = p.toLowerCase();
-  if (l.includes('bot'))   return 'Perfil automatizado detectado';
-  if (l.includes('nueva')) return 'Cuenta creada recientemente';
-  if (l.includes('anon'))  return 'Sin identidad verificable';
-  if (l.includes('verif')) return 'Cuenta verificada (menor riesgo)';
-  if (l.includes('fan'))   return 'Fan antiguo (menor riesgo)';
-  return '—';
-}
-
-function senalesActivas(r) {
-  const pills = [];
-  const p = (r.perfil_usuario || '').toLowerCase();
-  if (p.includes('bot'))                              pills.push({ icon:'🤖', label:'Bot_Sospechoso' });
-  if (p.includes('nueva') || p.includes('new'))       pills.push({ icon:'🆕', label:'Cuenta_Nueva' });
-  if (r.contenido_reciclado)                           pills.push({ icon:'♻️', label:'Contenido reciclado' });
-  if (r.velocidad_viral)                               pills.push({ icon:'⚡', label:'Velocidad viral alta' });
-  if (!r.corroboraciones || r.corroboraciones === 0)   pills.push({ icon:'❓', label:'Sin corroboración' });
-  if (pills.length === 0)                              pills.push({ icon:'❓', label:'Sin corroboración' });
-  return pills.map(function(pill) {
-    return '<span class="sig-pill" title="' + pill.label + '">' + pill.icon + '</span>';
-  }).join('');
-}
-
-function renderCuentas(data) {
-  const tb = $('tb-cuentas');
-  if (!data || !data.length) { tb.innerHTML = `<tr><td colspan="5" class="empty">Sin datos</td></tr>`; return; }
-  tb.innerHTML = data.slice(0,10).map(r => {
-    const dec = (+r.n_cancelar > 0) ? 'cancelar' : (+(r.n_bajar_video||0) > 0) ? 'bajar_video' : 'mantener';
-    return `<tr>
-      <td style="font-weight:600">${r.usuario_handle||'—'}</td>
-      <td>${bPerfil(r.perfil_usuario)}</td>
-      <td class="${clsScore(+(r.sospecha_promedio||0))}">${(+(r.sospecha_promedio||0)).toFixed(1)}</td>
-      <td>${bDec(dec)}</td>
-      <td class="motivo">${motivoPerfil(r.perfil_usuario)}</td>
-    </tr>`;
-  }).join('');
-}
-
-function renderPubs(data) {
-  const tb = $('tb-pubs');
-  if (!data || !data.length) { tb.innerHTML = `<tr><td colspan="9" class="empty">Sin datos</td></tr>`; return; }
-  tb.innerHTML = data.map(r => `<tr>
-    <td style="font-size:.75rem;color:var(--slate)">#${r.id_publicacion}</td>
-    <td style="font-weight:600">${r.usuario_handle||'—'}</td>
-    <td>${r.plataforma||'—'}</td>
-    <td>${bPerfil(r.perfil_usuario)}</td>
-    <td><div class="trunc" title="${(r.texto_truncado||'').replace(/"/g,'&quot;')}">${r.texto_truncado||'—'}</div></td>
-    <td class="${clsScore(+(r.indice_sospecha||0))}">${(+(r.indice_sospecha||0)).toFixed(1)}</td>
-    <td>${(+(r.score_confiabilidad||0)).toFixed(1)}</td>
-    <td>${bDec(r.decision)}</td>
-    <td><div class="sig-pills">${senalesActivas(r)}</div></td>
-  </tr>`).join('');
-}
-
-/* ══════════════════════════════════════════════════════════════
-   CARGA INICIAL CON DATOS ESTÁTICOS (inmediata)
-══════════════════════════════════════════════════════════════ */
-
-/* ══════════════════════════════════════════════════════════════
-   AUTOENCODER — datos y render
-   Calculado con ml/autoencoder.py (sklearn MLPRegressor)
-   Arquitectura: 20->12->6->3->6->12->20 | loss 0.027 | 107 iter.
-══════════════════════════════════════════════════════════════ */
-const AE_DATA = {
-  perfiles: [
-    { nombre:'Bot_Sospechoso', ae:65.5, reg:66.0, color:'#dc2626', badge:'bot'  },
-    { nombre:'Cuenta_Nueva',   ae:62.5, reg:51.7, color:'#ea580c', badge:'new'  },
-    { nombre:'Anonimo',        ae:57.3, reg:44.5, color:'#d97706', badge:'anon' },
-    { nombre:'Fan_Antiguo',    ae:11.7, reg:28.8, color:'#16a34a', badge:'fan'  },
-    { nombre:'Verificado',     ae:11.1, reg:22.6, color:'#2563eb', badge:'ver'  },
-  ],
-  divergentes: [
-    { id:2219, handle:'@tatianalopez_', plat:'TikTok',       perfil:'Anonimo',   ae:83.3, reg:19.7, star:true,
-      why:'Patron global imposible de reconstruir: plataforma + tipo + horario incompatible con cualquier cuenta normal.' },
-    { id:1759, handle:'@tatianalopez_', plat:'X',            perfil:'Anonimo',   ae:51.5, reg:20.8, star:true,
-      why:'Misma cuenta activa en multiples plataformas en pocas horas — coordinacion sospechosa.' },
-    { id:900,  handle:'@kevinmoreno34', plat:'Foro anonimo', perfil:'Verificado', ae:51.3, reg:29.4, star:false,
-      why:'Cuenta verificada en foro anonimo: cruce de plataforma estadisticamente inusual para su perfil.' },
-    { id:177,  handle:'@tatianalopez_', plat:'X',            perfil:'Anonimo',   ae:50.7, reg:20.7, star:true,
-      why:'Tercer post de la misma cuenta en distintos horarios — patron de presencia atipico.' },
-    { id:672,  handle:'@hectorcun',     plat:'Foro anonimo', perfil:'Verificado', ae:50.7, reg:30.0, star:false,
-      why:'Verificado en foro anonimo: combinacion de features fuera del rango aprendido.' },
-  ],
-};
-
-let chAE = null;
-
-function renderAE() {
-  // ── Grafico comparativo AE vs Reglas (Chart.js horizontal bar) ──
-  const ctx = $('ch-ae');
-  if (!ctx) return;
-  if (chAE) chAE.destroy();
-
-  const labels  = AE_DATA.perfiles.map(p => p.nombre.replace('_', ' '));
-  const aeVals  = AE_DATA.perfiles.map(p => p.ae);
-  const regVals = AE_DATA.perfiles.map(p => p.reg);
-  const colors  = AE_DATA.perfiles.map(p => p.color);
-
-  chAE = new Chart(ctx.getContext('2d'), {
+  // ---- Gráfica Plataforma (barras agrupadas) ----
+  const platLabels  = d.por_plataforma.map(p => p.Plataforma);
+  const platTotales = d.por_plataforma.map(p => p.total);
+  const platScores  = d.por_plataforma.map(p => p.score_promedio);
+  new Chart(document.getElementById('chartPlataforma'), {
     type: 'bar',
     data: {
-      labels,
+      labels: platLabels,
       datasets: [
-        {
-          label: 'Score Anomalia (AE)',
-          data: aeVals,
-          backgroundColor: colors.map(c => c + 'dd'),
-          borderColor: colors,
-          borderWidth: 1.5,
-          borderRadius: 5,
-        },
-        {
-          label: 'Indice Sospecha (Reglas)',
-          data: regVals,
-          backgroundColor: colors.map(() => 'rgba(100,116,139,0.18)'),
-          borderColor: colors.map(() => '#94a3b8'),
-          borderWidth: 1.5,
-          borderRadius: 5,
-          borderDash: [4,2],
-        },
-      ],
+        { label: 'Publicaciones', data: platTotales, backgroundColor: 'rgba(30,108,191,.75)', borderRadius: 4, yAxisID: 'y' },
+        { label: 'Score prom.',   data: platScores,  backgroundColor: 'rgba(240,165,0,.75)', borderRadius: 4, yAxisID: 'y2', type: 'line', tension: 0.3, pointRadius: 5, fill: false, borderColor: 'rgba(240,165,0,.9)', borderWidth: 2 },
+      ]
+    },
+    options: {
+      plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+      scales: {
+        y:  { position: 'left',  grid: { color: '#e0e6ed' }, title: { display: true, text: 'Publicaciones' } },
+        y2: { position: 'right', min: 30, max: 70, grid: { display: false }, title: { display: true, text: 'Score' } }
+      }
+    }
+  });
+
+  // ---- Línea de tiempo ----
+  const tlHoras    = d.linea_de_tiempo.map(t => t.hora);
+  const tlTotal    = d.linea_de_tiempo.map(t => t.total);
+  const tlCancelar = d.linea_de_tiempo.map(t => t.cancelar);
+  new Chart(document.getElementById('chartTiempo'), {
+    type: 'line',
+    data: {
+      labels: tlHoras,
+      datasets: [
+        { label: 'Total',   data: tlTotal,    borderColor: '#1e6cbf', backgroundColor: 'rgba(30,108,191,.1)', fill: true, tension: 0.3, pointRadius: 1.5 },
+        { label: 'Cancelar', data: tlCancelar, borderColor: '#d9534f', backgroundColor: 'rgba(217,83,79,.1)',  fill: true, tension: 0.3, pointRadius: 1.5, borderDash: [4,3] },
+      ]
+    },
+    options: {
+      plugins: { legend: { position: 'top', labels: { font: { size: 10 } } } },
+      scales: {
+        x: { ticks: { maxTicksLimit: 10, font: { size: 9 } }, grid: { display: false } },
+        y: { grid: { color: '#e0e6ed' } }
+      }
+    }
+  });
+
+  // ---- Tipo de publicación (barras horizontales) ----
+  const tipoLabels = d.por_tipo_publicacion.map(t => t.Tipo_Publicacion.replace('Transcripción de audio/video','Trans. A/V').replace('Descripción de captura','Desc. captura'));
+  const tipoPeso   = d.por_tipo_publicacion.map(t => +(t.peso_prueba*100).toFixed(1));
+  const tipoScore  = d.por_tipo_publicacion.map(t => +t.score_promedio.toFixed(1));
+  new Chart(document.getElementById('chartTipo'), {
+    type: 'bar',
+    data: {
+      labels: tipoLabels,
+      datasets: [
+        { label: 'Peso_Prueba ×100', data: tipoPeso,  backgroundColor: 'rgba(74,158,221,.75)', borderRadius: 4 },
+        { label: 'Score promedio',   data: tipoScore, backgroundColor: 'rgba(58,170,92,.6)',   borderRadius: 4 },
+      ]
     },
     options: {
       indexAxis: 'y',
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom', labels: { font:{ size:11 }, boxWidth:12, padding:16 } },
-        tooltip: {
-          callbacks: {
-            label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.parsed.x.toFixed(1),
-          },
-        },
-      },
+      plugins: { legend: { position: 'top', labels: { font: { size: 10 } } } },
       scales: {
-        x: {
-          min: 0, max: 100,
-          grid: { color: '#e2e8f0' },
-          ticks: { font:{ size:10 } },
-          title: { display:true, text:'Puntuacion mediana (0-100)', font:{ size:10 }, color:'#64748b' },
-        },
-        y: {
-          grid: { display:false },
-          ticks: { font:{ size:11 } },
-        },
-      },
-    },
-  });
-
-  // ── Tabla de casos divergentes ──
-  const tbody = $('ae-div-body');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  AE_DATA.divergentes.forEach(d => {
-    const pc  = d.perfil === 'Verificado' ? 'ver' : 'anon';
-    const gap = (d.ae - d.reg).toFixed(1);
-    const row = document.createElement('tr');
-    if (d.star) row.className = 'ae-star-row';
-    row.innerHTML =
-      '<td><code style="font-size:.7rem;color:var(--slate)">#' + d.id + '</code></td>' +
-      '<td><strong>' + d.handle + '</strong>' + (d.star ? ' <span style="font-size:.75rem">&#11088;</span>' : '') + '</td>' +
-      '<td><span style="font-size:.78rem">' + d.plat + '</span></td>' +
-      '<td><span class="badge ' + pc + '">' + d.perfil + '</span></td>' +
-      '<td class="ae-sc-ae">' + d.ae + '</td>' +
-      '<td class="ae-sc-reg">' + d.reg + '</td>' +
-      '<td class="ae-sc-gap">+' + gap + '</td>' +
-      '<td class="ae-why">' + d.why + '</td>';
-    tbody.appendChild(row);
-  });
-}
-
-function cargarEstatico() {
-  renderAE();
-  renderDecisiones(STATIC.decisiones);
-  renderTimeline(STATIC.timeline);
-  renderPlataformas(STATIC.plataformas);
-  renderSemaforo(STATIC.semaforo);
-  renderCuentas(STATIC.cuentas);
-  renderPubs(STATIC.pubs);
-  // dot queda gris (neutral) hasta que cargarTodo() confirme la conexión
-}
-
-/* ══════════════════════════════════════════════════════════════
-   SINCRONIZACIÓN CON SUPABASE
-   Los datos estáticos provienen de mv_scores (vista materializada).
-   La latencia simulada representa el round-trip real al proyecto.
-══════════════════════════════════════════════════════════════ */
-async function cargarTodo() {
-  const btn = $('refresh-btn');
-  btn.disabled = true;
-  btn.textContent = '⏳';
-  clearNotice();
-
-  // Latencia realista: query a mv_scores en Supabase + red
-  await new Promise(r => setTimeout(r, 900 + Math.random() * 500));
-
-  setDbStatus(true, 'Supabase en vivo');
-  $('ts').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
-  setNotice('ok', 'Datos sincronizados desde Supabase · 3.210 registros · mv_scores activo');
-  setTimeout(clearNotice, 4000);
-
-  btn.disabled = false;
-  btn.textContent = '↺ Actualizar';
-}
-
-/* ══════════════════════════════════════════════════════════════
-   CATÁLOGO CHATBOT (con nuevas intenciones)
-══════════════════════════════════════════════════════════════ */
-const CAT = {"meta":{"cortes":{"umbral_mantener":30.0,"umbral_cancelar":50.0},"distribucion":{"mantener_pct":36.4,"bajar_video_pct":25.5,"cancelar_pct":38.1}},"intenciones":[{"id":"indice_sospecha_que_es","keywords":["indice sospecha","indice de sospecha","que es el indice","que mide el indice","que es sospecha","score sospecha","score de sospecha","que mide el score","para que sirve el indice","que significa el score"],"respuestas":["El Índice de Sospecha es un puntaje de 0 a 100 por publicación. Combina 5 señales: perfil de cuenta (35%), antigüedad invertida (25%), velocidad de viralización (20%), contenido reciclado (10%) y tipo de publicación (10%). Arriba de 50 → cancelar. Abajo de 30 → mantener.","Es el corazón del sistema: una cifra 0-100 por publicación que resume qué tan sospechosa es su fuente. El perfil vale 35 puntos porque un Bot o Cuenta_Nueva es estructuralmente menos fiable que una cuenta Verificada. Mediana global: 26.8."]},{"id":"formula","keywords":["como se calcula el indice","formula del indice","formula sospecha","como calcula","pesos del indice","componentes del indice","factores del indice","variables del indice"],"respuestas":["Fórmula: Índice de Sospecha = 100 × (0.35×perfil_riesgo + 0.25×antigüedad_invertida + 0.20×velocidad_viral + 0.10×contenido_reciclado + 0.10×tipo_contenido). Cada factor normalizado 0-1. El perfil vale 35% porque es la señal más difícil de falsear a corto plazo.","Los 5 componentes: 35% perfil (Bot=1.0, Cuenta_Nueva=0.67, Verificado=0.0), 25% antigüedad invertida (cuenta de 0 días = sospecha alta), 20% velocidad viral (percentil de interacciones/min), 10% contenido reciclado (idéntico=1.0, posible=0.6, no=0.0), 10% tipo de publicación."]},{"id":"confiabilidad","keywords":["score confiabilidad","confiabilidad","que es la confiabilidad","como se calcula la confiabilidad","score de confiabilidad","que mide la confiabilidad"],"respuestas":["El Score de Confiabilidad (0-100) mide señales positivas: 40% antigüedad de cuenta, 40% corroboraciones independientes (cuántas fuentes sin conexión dicen lo mismo) y 20% tipo de publicación confiable. NO es 100 menos el Índice de Sospecha — son dos medidas independientes.","Las cuentas Verificadas tienen confiabilidad media de 60.6; los bots apenas 23.4. La publicación más confiable es @RedFactCheckCo (ID 1122): Score de Confiabilidad 98.1, Índice de Sospecha 1.5 — cuenta verificada de 8 años que alertó sobre el patrón de bots."]},{"id":"cancelar","keywords":["cancelar","por que cancelar","cuando cancelar","romper contrato","porcentaje cancelar","cuando recomienda cancelar"],"respuestas":["El sistema marca 'cancelar' cuando el Índice de Sospecha supera 50 — umbral que captura el 97.8% de los bots y el 82.1% de cuentas nuevas. Representa el 38.1% de las 3.210 publicaciones. Pero dado que 'mantener' tiene el 36.4%, la diferencia es solo 1.7 puntos — zona de baja certeza."]},{"id":"bajar_video","keywords":["bajar video","bajar el video","retirar contenido","cuando bajar","porcentaje bajar","eliminar video","decision bajar"],"respuestas":["'Bajar_video' aplica cuando el Índice de Sospecha está entre 30 y 50 — la zona gris del perfil Anónimo. El 25.5% del dataset. La evidencia justifica retirar el contenido pero no romper contratos. El 52.5% de los Anónimos queda en esta zona."]},{"id":"mantener","keywords":["mantener","dejar que siga","cuando mantener","porcentaje mantener","pruebas debiles","contenido legitimo"],"respuestas":["'Mantener' aplica con Índice de Sospecha menor a 30 — protege a cuentas Verificadas (93.8% en esta zona) y Fan_Antiguo (84.8%). El 36.4% del dataset. No significa inocencia, sino que esas publicaciones no aportan evidencia accionable."]},{"id":"bots","keywords":["cuantos bots","bots sospechosos","cuentas sospechosas","bot sospechoso","cuentas nuevas","hay bots","detecto bots","cuentas falsas"],"respuestas":["232 publicaciones de Bot_Sospechoso — el 7.2% del total. El 100% cae en 'cancelar' con mediana de sospecha 82.6. Además 608 publicaciones de Cuenta_Nueva, el 98.7% en 'cancelar'. Combinados: 840 publicaciones que casi todas recomiendan acción inmediata."]},{"id":"mas_sospechosa","keywords":["publicacion mas sospechosa","registro mas sospechoso","mayor indice sospecha","score mas alto","mas sospechoso","ejemplo sospechoso"],"respuestas":["La más sospechosa es el ID 2440 (@despiertaya_760, X): Bot_Sospechoso, cuenta de 0 días, repost '#CancelenAKai — KAI ES CULPABLE'. Índice de Sospecha: 85.9/100. Activó los 5 factores de riesgo. Es el ejemplo de manual del sistema."]},{"id":"mas_confiable","keywords":["publicacion mas confiable","registro mas confiable","mayor confiabilidad","mas confiable","fuente mas confiable","ejemplo confiable"],"respuestas":["La más confiable es el ID 1122 (@RedFactCheckCo, X): perfil Verificado, 3.000 días de antigüedad, post original que pedía 'cautela: varias publicaciones repiten el mismo texto en minutos'. Score de Confiabilidad: 98.1. Índice de Sospecha: 1.5."]},{"id":"hashtags","keywords":["hashtags","hashtag mas usado","etiquetas","trending","tendencias","hastag"],"respuestas":["Top 5 hashtags: #EvaluandoLaSituacion (389), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357), #CancelenAKai (319). Había dos frentes: acusadores (#CancelenAKai, #KaiMentiroso) y defensores (#JusticiaParaKai 276, #YoLeCreoAKai 97). Los neutrales dominaron en volumen."]},{"id":"marcas","keywords":["marcas","patrocinadores","sponsors","pulsotech","urbankrew","novavolt","empresas"],"respuestas":["Tres marcas patrocinadoras: PulsoTech (64 menciones), UrbanKrew (60), NovaVolt (57). Sus cuentas oficiales verificadas tienen Índice de Sospecha bajo y quedan en 'mantener' — la presión para actuar viene de otras fuentes, no de sus propias publicaciones."]},{"id":"reciclado","keywords":["contenido reciclado","como detectaron el reciclado","que es contenido reciclado","contenido repetido","textos copiados"],"respuestas":["El 5.9% del dataset — 190 publicaciones — es contenido reciclado: 121 idénticos a un escándalo de 2023 con otro creador, y 69 'posiblemente similares'. El sistema los captura con el factor f4_reciclado (peso 10% en el Índice de Sospecha). Si se confirma que son copias, es evidencia directa de fabricación.","Contenido reciclado significa que el texto de esa publicación ya existía en otro escándalo anterior, con otro creador de contenido, en 2023. No fue creado en respuesta a Kai — fue reutilizado. 121 publicaciones son copias idénticas, 69 son similares. Esto es una señal de manipulación organizada."]},{"id":"datos","keywords":["de donde vienen los datos","origen de los datos","dataset","fuente de datos","cuantos registros","cuantas publicaciones"],"respuestas":["3.210 publicaciones de 4 plataformas: X (1.442, 44.9%), TikTok (894, 27.8%), Instagram (667, 20.8%) y Foros anónimos (207, 6.4%). CSV cargado directo a Supabase — flujo ELT puro. Las transformaciones viven en SQL, no en Python."]},{"id":"no_ml","keywords":["por que no machine learning","por que no ml","no usaron ia","por que reglas","por que no clasificador","sin machine learning"],"respuestas":["Tres razones: 1) No hay etiquetas de entrenamiento. 2) El tiempo era de 4 horas. 3) Las reglas son auditables: cualquiera puede preguntar 'por qué este score es 82' y la respuesta es directa. El score ya separa bots (82.6) de verificados (19.1) con 63 puntos de diferencia."]},{"id":"sistema","keywords":["como funciona el sistema","como funciona","explica el sistema","que hace el sistema","arquitectura","pipeline"],"respuestas":["El sistema tiene 3 pasos: 1) Carga el CSV crudo de 3.210 publicaciones a Supabase sin modificar nada. 2) SQL calcula Índice de Sospecha y Score de Confiabilidad dentro de Supabase. 3) Este dashboard HTML consulta Supabase en tiempo real y muestra los scores y la decisión recomendada."]},{"id":"evidencia_dividida","keywords":["evidencia dividida","zona gris","por que dividida","diferencia pequena","por que no cancelar directamente","incertidumbre","certeza baja"],"respuestas":["La diferencia entre 'cancelar' (38.1%) y 'mantener' (36.4%) es de solo 1.7 puntos porcentuales. Eso no es suficiente para una decisión contractual definitiva. El sistema recomienda una acción intermedia: bajar el video temporalmente y activar revisión humana antes de romper contratos.","El dataset está genuinamente dividido: el 38.1% de las publicaciones tiene señales de sospecha alta, pero el 36.4% proviene de fuentes que el sistema no considera amenazantes. Esta ambigüedad es información en sí misma — indica que no hay consenso claro y que la decisión requiere validación adicional."]},{"id":"pico_3am","keywords":["pico 3 am","3 de la manana","pico temporal","hora pico","amplificacion","coordinacion","por que de madrugada"],"respuestas":["El 38% de las 3.210 publicaciones apareció en una sola hora, entre las 3:00 y las 4:00 AM. Ese volumen de publicaciones en una hora de madrugada es estadísticamente anómalo y consistente con amplificación coordinada — es decir, múltiples cuentas publicando al mismo tiempo de forma no orgánica.","El pico de las 3 AM es una de las señales más potentes del dataset. La velocidad de viralización en esa hora supera con creces el p99 del dataset. Combinado con el alto porcentaje de cuentas Bot y Cuenta_Nueva activas en ese mismo período, refuerza la hipótesis de coordinación."]},{"id":"recomendacion_concreta","keywords":["recomendacion concreta","que hacer","que recomiendan","accion concreta","que deberia hacer la plataforma","siguiente paso","que hacemos"],"respuestas":["La recomendación operativa del sistema es: 1) Bajar el video temporalmente para detener la amplificación. 2) Activar revisión humana prioritaria de las 232 publicaciones de bots y las 190 de contenido reciclado — esas son las más verificables directamente. 3) No romper contratos con PulsoTech, UrbanKrew o NovaVolt hasta validar al menos una fuente de evidencia original. La diferencia de 1.7% entre cancelar y mantener no justifica una decisión contractual irreversible.","Tres pasos concretos: primero, retirar el video de trending (no necesita evidencia perfecta). Segundo, investigar las 121 publicaciones idénticas a 2023 — si son copias, eso es evidencia directa de fabricación. Tercero, esperar al menos una corroboración independiente de fuente verificada antes de actuar contractualmente. Actualmente el 58.8% de las publicaciones no tiene ninguna corroboración."]},{"id":"autoencoder","keywords":["autoencoder","modelo ml","machine learning","que es el autoencoder","como funciona el ml","inteligencia artificial","red neuronal","detector anomalias","sin etiquetas","aprendizaje automatico","modelo de ml","modelo de machine learning"],"respuestas":["El autoencoder es una red neuronal entrenada solo con las 1.298 publicaciones de cuentas Verificadas y Fan_Antiguo. Aprendió qué es comportamiento normal. Cuando le pasas un bot o cuenta nueva, intenta reconstruirlo con ese conocimiento y falla: ese error de reconstrucción es el Score de Anomalía (0-100). Sin etiquetas, sin reglas manuales. Arquitectura 20→12→6→3→6→12→20.","Convergencia en 107 iteraciones con loss 0.027. El bottleneck de 3 neuronas obliga al modelo a capturar la esencia del comportamiento normal en solo 3 números. Cualquier publicación que no quepa en ese espacio de 3 dimensiones es marcada como anómala. Mediana Bot_Sospechoso: 65.5 vs Verificado: 11.1."]},{"id":"score_anomalia_ae","keywords":["score anomalia","score de anomalia","que mide el score anomalia","puntaje anomalia","error reconstruccion","reconstruccion","cuanto vale el ae","que significan los numeros ae","resultado autoencoder"],"respuestas":["El Score de Anomalía va de 0 a 100. 0 = el autoencoder reconstruye perfectamente ese comportamiento (es normal). 100 = el modelo nunca vio nada parecido en el entrenamiento. Por perfil: Bot_Sospechoso mediana 65.5, Cuenta_Nueva 62.5, Anónimo 57.3, Fan_Antiguo 11.7, Verificado 11.1.","1.640 de las 3.210 publicaciones superan el umbral 50 en el Score de Anomalía. 506 superan 70. La correlación con el Índice de Sospecha basado en reglas es r=0.797: ambos sistemas coinciden en el 80% del análisis. El 20% restante son los hallazgos más interesantes."]},{"id":"tatianalopez_caso","keywords":["tatianalopez","tatiana lopez","caso divergente","cuenta anomala","el caso mas raro","que encontro el ae","hallazgo nuevo","que detecta diferente","casos que reglas perdieron","casos nuevos","cuentas que reglas ignoraron"],"respuestas":["El caso más llamativo: @tatianalopez_ tiene Índice de Sospecha de solo 19.7 (las reglas la ignoraban, casi 'mantener'). Pero el autoencoder le da Score de Anomalía de 83.3. La cuenta tiene 4.000 días de antigüedad y baja velocidad viral, pero la combinación de sus 20 features es estadísticamente inconsistente con cualquier cuenta normal. Las reglas no pueden detectar eso.","@tatianalopez_ aparece en 3 de los 5 casos divergentes. Publicó en TikTok y X en distintos horarios. Individualmente ninguna métrica activa las reglas, pero el patrón global es lo que el autoencoder detectó como imposible de reconstruir desde el baseline normal."]},{"id":"validacion_cruzada_ae","keywords":["por que dos modelos","reglas y autoencoder","dos sistemas","validacion","por que no solo uno","complementarios","diferencia entre ambos","que aporta el ae","valor del autoencoder","que agrega el ml"],"respuestas":["Los dos sistemas se complementan: las reglas son auditables (puedes explicar cada score), el autoencoder es robusto a patrones no previstos. r=0.797 significa que coinciden en el 80% — eso valida que ambos ven lo mismo. El 20% de divergencia son los casos más interesantes: el AE detectó 5 publicaciones que las reglas ignoraban, y no hay casos donde las reglas digan cancelar y el AE diga OK.","Si ambos sistemas dicen anómalo: certeza alta. Si solo el AE alerta: investigar el patrón global aunque las métricas individuales parezcan inocentes. Si solo las reglas alertan: la cuenta activa factores de riesgo conocidos pero su comportamiento global no es tan diferente al normal. El AE encontró 0 falsos positivos en el top de la lista de reglas."]}],"fallback":["Esa pregunta está fuera del alcance de esta demo. Puedo explicarte el Índice de Sospecha, el Score de Confiabilidad, por qué la evidencia está dividida, qué pasó a las 3 AM, o cuál es la recomendación operativa concreta.","No tengo ese dato en el demo. Puedo mostrarte cómo el sistema clasifica las 3.210 publicaciones en cancelar (38.1%), bajar_video (25.5%) y mantener (36.4%). ¿Por dónde empezamos?"]};
-
-/* ══════════════════════════════════════════════════════════════
-   MOTOR CHATBOT
-══════════════════════════════════════════════════════════════ */
-const Bot = (() => {
-  const U = 0.72;
-  const norm = t => (typeof t==='string'?t:'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
-  const sim  = (a,b) => {
-    if (!a||!b) return 0; if(a===b) return 1;
-    if(Math.max(a.length,b.length)/(Math.min(a.length,b.length)||1)>3) return 0;
-    const dp=Array.from({length:a.length+1},()=>new Array(b.length+1).fill(0)); let lcs=0;
-    for(let i=1;i<=a.length;i++) for(let j=1;j<=b.length;j++) if(a[i-1]===b[j-1]){dp[i][j]=dp[i-1][j-1]+1;if(dp[i][j]>lcs)lcs=dp[i][j];}
-    return 2*lcs/(a.length+b.length);
-  };
-  const pick = l => l&&l.length ? l[Math.floor(Math.random()*l.length)] : null;
-
-  return {
-    responder(t) {
-      if (!t||!t.trim()) return pick(CAT.fallback);
-      const n = norm(t); const ints = CAT.intenciones||[];
-      let best=null, blen=0;
-      for(const it of ints) for(const kw of(it.keywords||[])){const k=norm(kw);if(k&&n.includes(k)&&k.length>blen){blen=k.length;best=it;}}
-      if(best) return pick(best.respuestas)||pick(CAT.fallback);
-      let bIt=null, bS=0;
-      for(const it of ints) for(const kw of(it.keywords||[])){
-        const k=norm(kw); if(!k) continue;
-        let s=sim(k,n);
-        if(n.length>=k.length){for(let i=0;i<=n.length-k.length;i+=2){const v=sim(k,n.slice(i,i+k.length));if(v>s)s=v;}}
-        if(s>bS){bS=s;bIt=it;}
+        x: { max: 100, grid: { color: '#e0e6ed' } },
+        y: { ticks: { font: { size: 9 } }, grid: { display: false } }
       }
-      if(bIt&&bS>=U) return pick(bIt.respuestas)||pick(CAT.fallback);
-      return pick(CAT.fallback);
     }
+  });
+
+  // ---- Perfil de usuario (dona) ----
+  const perfilLabels = d.por_perfil_usuario.map(p => p.Perfil_Usuario);
+  const perfilData   = d.por_perfil_usuario.map(p => p.total);
+  const perfilColors = perfilLabels.map(l =>
+    l === 'Bot_Sospechoso' ? '#d9534f' :
+    l === 'Cuenta_Nueva'   ? '#f0a500' :
+    l === 'Anónimo'        ? '#94a3b8' :
+    l === 'Fan_Antiguo'    ? '#3aaa5c' : '#1e6cbf'
+  );
+  new Chart(document.getElementById('chartPerfil'), {
+    type: 'doughnut',
+    data: { labels: perfilLabels, datasets: [{ data: perfilData, backgroundColor: perfilColors }] },
+    options: {
+      plugins: {
+        legend: { position: 'right' },
+        tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' publicaciones' } }
+      }
+    }
+  });
+
+  // ---- Tabla ranking ----
+  const tbody = document.getElementById('tabla-cuentas');
+  const badgeMap = {
+    'Bot_Sospechoso': 'badge-bot',  'Cuenta_Nueva': 'badge-new',
+    'Anónimo':        'badge-anon', 'Fan_Antiguo':  'badge-fan',
+    'Verificado':     'badge-veri',
   };
-})();
+  d.top_cuentas_sospechosas.slice(0,20).forEach((c, i) => {
+    const isColor = c.indice_sospecha > 0.65 ? '#d9534f' : c.indice_sospecha > 0.5 ? '#f0a500' : '#3aaa5c';
+    const scChip  = c.score_confiabilidad < 40 ? 'score-red' : c.score_confiabilidad < 65 ? 'score-yellow' : 'score-green';
+    tbody.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td><strong>${c.usuario}</strong></td>
+        <td>${c.plataforma}</td>
+        <td><span class="badge ${badgeMap[c.perfil]||'badge-anon'}">${c.perfil}</span></td>
+        <td>${c.num_publicaciones}</td>
+        <td>
+          <span style="font-weight:700;color:${isColor}">${c.indice_sospecha.toFixed(2)}</span>
+          <span class="bar-is" style="width:${c.indice_sospecha*60}px;background:${isColor};opacity:.5"></span>
+        </td>
+        <td><span class="score-chip ${scChip}">${c.score_confiabilidad.toFixed(1)}</span></td>
+      </tr>`;
+  });
 
-/* ══════════════════════════════════════════════════════════════
-   CHATBOT UI
-══════════════════════════════════════════════════════════════ */
-let chatOpen = false;
+  // ---- Explicabilidad ----
+  document.getElementById('explain-decision-name').textContent =
+    '"' + pct.decision_final + '"';
 
-function toggleChat() {
-  chatOpen = !chatOpen;
-  $('cpanel').classList.toggle('open', chatOpen);
-  if (chatOpen && !$('cmsgs').children.length) {
-    addMsg('Hola. Puedo explicarte cómo funciona el sistema de análisis del caso Kai Duarte: el Índice de Sospecha, el Score de Confiabilidad, por qué la evidencia está dividida, qué pasó a las 3 AM, o cuál es la recomendación operativa concreta. ¿Por dónde empezamos?', 'bot');
+  const pesos = [
+    { nombre: 'Confiabilidad del perfil', pct: 40, desc: '(1 − Índice_Sospecha) × 40', color: '#1e6cbf' },
+    { nombre: 'Calidad de la evidencia',  pct: 35, desc: 'Peso_Prueba × 35',            color: '#4a9edd' },
+    { nombre: 'Ausencia de coordinación', pct: 15, desc: '(1 − Tasa_Coordinacion) × 15',color: '#3aaa5c' },
+    { nombre: 'Corroboraciones ind.',     pct: 10, desc: 'Corrobora_norm × 10',          color: '#f0a500' },
+  ];
+
+  const explainFactores = {
+    'Cancelar': [
+      { lbl: 'Cuentas nuevas/bots (33%)', val: 'Alto', color: '#d9534f' },
+      { lbl: 'Velocidad > 50 (outlier)', val: 'Alto', color: '#d9534f' },
+      { lbl: 'Contenido reciclado', val: 'Confirmado', color: '#d9534f' },
+      { lbl: 'Tipo: Trans. audio/video', val: 'Baja verificabilidad', color: '#d9534f' },
+    ],
+    'Bajar el video': [
+      { lbl: 'Score promedio (48.5)', val: 'Zona gris', color: '#f0a500' },
+      { lbl: 'Mayoría: comentarios', val: '65.8% del total', color: '#f0a500' },
+      { lbl: 'Corroboraciones = 0.73', val: 'Bajo respaldo', color: '#f0a500' },
+      { lbl: 'Sin evidencia definitiva', val: 'Ambiguo', color: '#f0a500' },
+    ],
+    'Mantener': [
+      { lbl: 'Cuentas verificadas (19%)', val: 'Score alto', color: '#3aaa5c' },
+      { lbl: 'Fan_Antiguo (21%)', val: 'Score alto', color: '#3aaa5c' },
+      { lbl: 'Sin reciclado (94%)', val: 'Mayoría limpia', color: '#3aaa5c' },
+      { lbl: 'Corrobora > 0 (36%)', val: 'Respaldo parcial', color: '#3aaa5c' },
+    ],
+  };
+
+  const egrid = document.getElementById('explain-grid');
+  // Panel de pesos del modelo
+  egrid.innerHTML = `
+    <div class="explain-card" style="grid-column:1/2">
+      <h4>⚙️ Pesos del modelo Score_Confiabilidad</h4>
+      ${pesos.map(p => `
+        <div class="explain-row">
+          <div>
+            <div class="explain-var">${p.nombre}</div>
+            <div style="font-size:.7rem;color:#94a3b8">${p.desc}</div>
+          </div>
+          <div class="explain-pct" style="color:${p.color}">${p.pct}%</div>
+        </div>
+        <div class="explain-pbar" style="background:${p.color};opacity:.7;width:${p.pct*2.4}px;margin-bottom:10px;"></div>
+      `).join('')}
+    </div>
+    <div class="explain-card">
+      <h4>🔴 Señales de riesgo (zona Cancelar)</h4>
+      ${explainFactores['Cancelar'].map(f => `
+        <div class="explain-row" style="margin-bottom:8px">
+          <span class="explain-var">${f.lbl}</span>
+          <span class="explain-pct" style="color:${f.color}">${f.val}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="explain-card">
+      <h4>🟡 Por qué "Bajar el video" (mayoría)</h4>
+      ${explainFactores['Bajar el video'].map(f => `
+        <div class="explain-row" style="margin-bottom:8px">
+          <span class="explain-var">${f.lbl}</span>
+          <span class="explain-pct" style="color:${f.color}">${f.val}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // ---- Muestras por zona ----
+  const zonaMap = {
+    'Cancelar': 'cancelar', 'Bajar el video': 'bajar', 'Mantener': 'mantener'
+  };
+  Object.entries(d.muestras_por_zona).forEach(([zona, muestras]) => {
+    const key = zonaMap[zona];
+    const chipCls = zona === 'Cancelar' ? 'score-red' : zona === 'Bajar el video' ? 'score-yellow' : 'score-green';
+    const panel = document.getElementById('tab-' + key);
+    panel.innerHTML = muestras.map(m => `
+      <div class="muestra-card">
+        <div class="muestra-header">
+          <span class="score-chip ${chipCls}">${m.score.toFixed(1)}</span>
+          <strong>${m.usuario}</strong>
+          <span style="font-size:.75rem;color:var(--texto-cl)">${m.plataforma} · ${m.tipo}</span>
+        </div>
+        <div class="muestra-texto">"${m.texto}${m.texto.length>=200?'…':''}"</div>
+        <div style="margin-top:8px;display:flex;gap:16px;font-size:.72rem;color:var(--texto-cl)">
+          <span>IS: <strong>${m.indice_sospecha.toFixed(2)}</strong></span>
+          <span>PP: <strong>${m.peso_prueba.toFixed(2)}</strong></span>
+          <span>TC: <strong>${m.tasa_coordinacion.toFixed(2)}</strong></span>
+        </div>
+      </div>
+    `).join('');
+  });
+}
+
+// ================================================================
+// TABS
+// ================================================================
+function showTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ================================================================
+// DATOS EMBEBIDOS (fallback cuando no se puede hacer fetch)
+// Se reemplazan con los valores reales al ejecutar el notebook.
+// ================================================================
+const DATOS_EMBEBIDOS = {
+  "resumen": {
+    "total_publicaciones": 3210,
+    "periodo_inicio": "2026-03-14 23:47:00",
+    "periodo_fin": "2026-03-15 07:30:00",
+    "score_promedio": 48.54,
+    "score_mediana": 49.47,
+    "indice_sospecha_promedio": 0.384,
+    "decision": {
+      "Cancelar": 24.0,
+      "Bajar el video": 68.9,
+      "Mantener": 7.0,
+      "decision_final": "Bajar el video",
+      "confianza_pct": 68.9
+    }
+  },
+  "por_plataforma": [
+    {
+      "Plataforma": "Foro anónimo",
+      "total": 207,
+      "score_promedio": 48.92,
+      "indice_sospecha": 0.36
+    },
+    {
+      "Plataforma": "Instagram",
+      "total": 667,
+      "score_promedio": 50.04,
+      "indice_sospecha": 0.35
+    },
+    {
+      "Plataforma": "TikTok",
+      "total": 894,
+      "score_promedio": 47.96,
+      "indice_sospecha": 0.4
+    },
+    {
+      "Plataforma": "X",
+      "total": 1442,
+      "score_promedio": 48.15,
+      "indice_sospecha": 0.4
+    }
+  ],
+  "por_tipo_publicacion": [
+    {
+      "Tipo_Publicacion": "Comentario",
+      "total": 2111,
+      "score_promedio": 49.63,
+      "peso_prueba": 0.5
+    },
+    {
+      "Tipo_Publicacion": "Descripción de captura",
+      "total": 190,
+      "score_promedio": 45.0,
+      "peso_prueba": 0.31
+    },
+    {
+      "Tipo_Publicacion": "Post original",
+      "total": 179,
+      "score_promedio": 65.25,
+      "peso_prueba": 0.82
+    },
+    {
+      "Tipo_Publicacion": "Repost/Cita",
+      "total": 574,
+      "score_promedio": 42.28,
+      "peso_prueba": 0.41
+    },
+    {
+      "Tipo_Publicacion": "Transcripción de audio/video",
+      "total": 156,
+      "score_promedio": 41.93,
+      "peso_prueba": 0.21
+    }
+  ],
+  "por_perfil_usuario": [
+    {
+      "Perfil_Usuario": "Anónimo",
+      "total": 1072,
+      "score_promedio": 46.76,
+      "indice_sospecha": 0.42
+    },
+    {
+      "Perfil_Usuario": "Bot_Sospechoso",
+      "total": 232,
+      "score_promedio": 32.74,
+      "indice_sospecha": 0.74
+    },
+    {
+      "Perfil_Usuario": "Cuenta_Nueva",
+      "total": 608,
+      "score_promedio": 38.9,
+      "indice_sospecha": 0.61
+    },
+    {
+      "Perfil_Usuario": "Fan_Antiguo",
+      "total": 683,
+      "score_promedio": 55.0,
+      "indice_sospecha": 0.23
+    },
+    {
+      "Perfil_Usuario": "Verificado",
+      "total": 615,
+      "score_promedio": 59.95,
+      "indice_sospecha": 0.13
+    }
+  ],
+  "linea_de_tiempo": [
+    {
+      "hora": "23:45",
+      "total": 5,
+      "cancelar": 2,
+      "bajar": 3,
+      "mantener": 0,
+      "score_prom": 41.93
+    },
+    {
+      "hora": "23:50",
+      "total": 8,
+      "cancelar": 0,
+      "bajar": 7,
+      "mantener": 1,
+      "score_prom": 53.33
+    },
+    {
+      "hora": "23:55",
+      "total": 4,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 0,
+      "score_prom": 51.87
+    },
+    {
+      "hora": "00:00",
+      "total": 2,
+      "cancelar": 0,
+      "bajar": 1,
+      "mantener": 1,
+      "score_prom": 63.42
+    },
+    {
+      "hora": "00:05",
+      "total": 3,
+      "cancelar": 0,
+      "bajar": 3,
+      "mantener": 0,
+      "score_prom": 59.34
+    },
+    {
+      "hora": "00:10",
+      "total": 6,
+      "cancelar": 1,
+      "bajar": 3,
+      "mantener": 2,
+      "score_prom": 49.96
+    },
+    {
+      "hora": "00:15",
+      "total": 8,
+      "cancelar": 2,
+      "bajar": 4,
+      "mantener": 2,
+      "score_prom": 53.2
+    },
+    {
+      "hora": "00:20",
+      "total": 8,
+      "cancelar": 0,
+      "bajar": 7,
+      "mantener": 1,
+      "score_prom": 53.34
+    },
+    {
+      "hora": "00:25",
+      "total": 2,
+      "cancelar": 0,
+      "bajar": 2,
+      "mantener": 0,
+      "score_prom": 46.03
+    },
+    {
+      "hora": "00:30",
+      "total": 3,
+      "cancelar": 0,
+      "bajar": 3,
+      "mantener": 0,
+      "score_prom": 56.97
+    },
+    {
+      "hora": "00:35",
+      "total": 5,
+      "cancelar": 0,
+      "bajar": 5,
+      "mantener": 0,
+      "score_prom": 55.43
+    },
+    {
+      "hora": "00:40",
+      "total": 8,
+      "cancelar": 0,
+      "bajar": 7,
+      "mantener": 1,
+      "score_prom": 54.24
+    },
+    {
+      "hora": "00:45",
+      "total": 6,
+      "cancelar": 2,
+      "bajar": 3,
+      "mantener": 1,
+      "score_prom": 50.72
+    },
+    {
+      "hora": "00:50",
+      "total": 5,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 1,
+      "score_prom": 60.27
+    },
+    {
+      "hora": "00:55",
+      "total": 9,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 5,
+      "score_prom": 61.25
+    },
+    {
+      "hora": "01:00",
+      "total": 9,
+      "cancelar": 2,
+      "bajar": 6,
+      "mantener": 1,
+      "score_prom": 51.54
+    },
+    {
+      "hora": "01:05",
+      "total": 9,
+      "cancelar": 0,
+      "bajar": 8,
+      "mantener": 1,
+      "score_prom": 57.85
+    },
+    {
+      "hora": "01:10",
+      "total": 4,
+      "cancelar": 0,
+      "bajar": 3,
+      "mantener": 1,
+      "score_prom": 58.37
+    },
+    {
+      "hora": "01:15",
+      "total": 12,
+      "cancelar": 4,
+      "bajar": 7,
+      "mantener": 1,
+      "score_prom": 46.93
+    },
+    {
+      "hora": "01:20",
+      "total": 3,
+      "cancelar": 0,
+      "bajar": 2,
+      "mantener": 1,
+      "score_prom": 61.24
+    },
+    {
+      "hora": "01:25",
+      "total": 6,
+      "cancelar": 1,
+      "bajar": 5,
+      "mantener": 0,
+      "score_prom": 51.36
+    },
+    {
+      "hora": "01:30",
+      "total": 20,
+      "cancelar": 5,
+      "bajar": 13,
+      "mantener": 2,
+      "score_prom": 48.77
+    },
+    {
+      "hora": "01:35",
+      "total": 14,
+      "cancelar": 2,
+      "bajar": 11,
+      "mantener": 1,
+      "score_prom": 49.75
+    },
+    {
+      "hora": "01:40",
+      "total": 26,
+      "cancelar": 4,
+      "bajar": 21,
+      "mantener": 1,
+      "score_prom": 51.85
+    },
+    {
+      "hora": "01:45",
+      "total": 18,
+      "cancelar": 3,
+      "bajar": 11,
+      "mantener": 4,
+      "score_prom": 53.03
+    },
+    {
+      "hora": "01:50",
+      "total": 13,
+      "cancelar": 2,
+      "bajar": 10,
+      "mantener": 1,
+      "score_prom": 52.82
+    },
+    {
+      "hora": "01:55",
+      "total": 12,
+      "cancelar": 1,
+      "bajar": 11,
+      "mantener": 0,
+      "score_prom": 49.05
+    },
+    {
+      "hora": "02:00",
+      "total": 19,
+      "cancelar": 4,
+      "bajar": 14,
+      "mantener": 1,
+      "score_prom": 51.74
+    },
+    {
+      "hora": "02:05",
+      "total": 16,
+      "cancelar": 4,
+      "bajar": 7,
+      "mantener": 5,
+      "score_prom": 54.21
+    },
+    {
+      "hora": "02:10",
+      "total": 23,
+      "cancelar": 5,
+      "bajar": 17,
+      "mantener": 1,
+      "score_prom": 49.92
+    },
+    {
+      "hora": "02:15",
+      "total": 14,
+      "cancelar": 1,
+      "bajar": 9,
+      "mantener": 4,
+      "score_prom": 57.54
+    },
+    {
+      "hora": "02:20",
+      "total": 24,
+      "cancelar": 5,
+      "bajar": 16,
+      "mantener": 3,
+      "score_prom": 50.26
+    },
+    {
+      "hora": "02:25",
+      "total": 16,
+      "cancelar": 3,
+      "bajar": 9,
+      "mantener": 4,
+      "score_prom": 52.2
+    },
+    {
+      "hora": "02:30",
+      "total": 29,
+      "cancelar": 6,
+      "bajar": 23,
+      "mantener": 0,
+      "score_prom": 49.13
+    },
+    {
+      "hora": "02:35",
+      "total": 30,
+      "cancelar": 7,
+      "bajar": 22,
+      "mantener": 1,
+      "score_prom": 48.0
+    },
+    {
+      "hora": "02:40",
+      "total": 36,
+      "cancelar": 7,
+      "bajar": 26,
+      "mantener": 3,
+      "score_prom": 50.57
+    },
+    {
+      "hora": "02:45",
+      "total": 33,
+      "cancelar": 9,
+      "bajar": 22,
+      "mantener": 2,
+      "score_prom": 48.06
+    },
+    {
+      "hora": "02:50",
+      "total": 34,
+      "cancelar": 6,
+      "bajar": 25,
+      "mantener": 3,
+      "score_prom": 50.6
+    },
+    {
+      "hora": "02:55",
+      "total": 36,
+      "cancelar": 9,
+      "bajar": 24,
+      "mantener": 3,
+      "score_prom": 49.64
+    },
+    {
+      "hora": "03:00",
+      "total": 51,
+      "cancelar": 15,
+      "bajar": 28,
+      "mantener": 8,
+      "score_prom": 50.25
+    },
+    {
+      "hora": "03:05",
+      "total": 73,
+      "cancelar": 21,
+      "bajar": 47,
+      "mantener": 5,
+      "score_prom": 47.39
+    },
+    {
+      "hora": "03:10",
+      "total": 67,
+      "cancelar": 18,
+      "bajar": 42,
+      "mantener": 7,
+      "score_prom": 48.22
+    },
+    {
+      "hora": "03:15",
+      "total": 72,
+      "cancelar": 16,
+      "bajar": 49,
+      "mantener": 7,
+      "score_prom": 51.02
+    },
+    {
+      "hora": "03:20",
+      "total": 49,
+      "cancelar": 13,
+      "bajar": 33,
+      "mantener": 3,
+      "score_prom": 46.91
+    },
+    {
+      "hora": "03:25",
+      "total": 60,
+      "cancelar": 18,
+      "bajar": 36,
+      "mantener": 6,
+      "score_prom": 49.07
+    },
+    {
+      "hora": "03:30",
+      "total": 87,
+      "cancelar": 21,
+      "bajar": 55,
+      "mantener": 11,
+      "score_prom": 49.28
+    },
+    {
+      "hora": "03:35",
+      "total": 81,
+      "cancelar": 17,
+      "bajar": 60,
+      "mantener": 4,
+      "score_prom": 49.21
+    },
+    {
+      "hora": "03:40",
+      "total": 80,
+      "cancelar": 17,
+      "bajar": 58,
+      "mantener": 5,
+      "score_prom": 49.15
+    },
+    {
+      "hora": "03:45",
+      "total": 72,
+      "cancelar": 19,
+      "bajar": 49,
+      "mantener": 4,
+      "score_prom": 47.23
+    },
+    {
+      "hora": "03:50",
+      "total": 85,
+      "cancelar": 17,
+      "bajar": 57,
+      "mantener": 11,
+      "score_prom": 50.19
+    },
+    {
+      "hora": "03:55",
+      "total": 90,
+      "cancelar": 18,
+      "bajar": 62,
+      "mantener": 10,
+      "score_prom": 49.57
+    },
+    {
+      "hora": "04:00",
+      "total": 109,
+      "cancelar": 20,
+      "bajar": 83,
+      "mantener": 6,
+      "score_prom": 49.08
+    },
+    {
+      "hora": "04:05",
+      "total": 131,
+      "cancelar": 28,
+      "bajar": 95,
+      "mantener": 8,
+      "score_prom": 48.63
+    },
+    {
+      "hora": "04:10",
+      "total": 139,
+      "cancelar": 26,
+      "bajar": 106,
+      "mantener": 7,
+      "score_prom": 48.52
+    },
+    {
+      "hora": "04:15",
+      "total": 175,
+      "cancelar": 47,
+      "bajar": 120,
+      "mantener": 8,
+      "score_prom": 46.74
+    },
+    {
+      "hora": "04:20",
+      "total": 135,
+      "cancelar": 43,
+      "bajar": 84,
+      "mantener": 8,
+      "score_prom": 46.19
+    },
+    {
+      "hora": "04:25",
+      "total": 97,
+      "cancelar": 28,
+      "bajar": 64,
+      "mantener": 5,
+      "score_prom": 47.16
+    },
+    {
+      "hora": "04:30",
+      "total": 89,
+      "cancelar": 18,
+      "bajar": 67,
+      "mantener": 4,
+      "score_prom": 48.07
+    },
+    {
+      "hora": "04:35",
+      "total": 77,
+      "cancelar": 26,
+      "bajar": 50,
+      "mantener": 1,
+      "score_prom": 45.36
+    },
+    {
+      "hora": "04:40",
+      "total": 66,
+      "cancelar": 15,
+      "bajar": 49,
+      "mantener": 2,
+      "score_prom": 48.39
+    },
+    {
+      "hora": "04:45",
+      "total": 78,
+      "cancelar": 23,
+      "bajar": 52,
+      "mantener": 3,
+      "score_prom": 46.41
+    },
+    {
+      "hora": "04:50",
+      "total": 69,
+      "cancelar": 22,
+      "bajar": 44,
+      "mantener": 3,
+      "score_prom": 47.37
+    },
+    {
+      "hora": "04:55",
+      "total": 57,
+      "cancelar": 12,
+      "bajar": 40,
+      "mantener": 5,
+      "score_prom": 49.62
+    },
+    {
+      "hora": "05:00",
+      "total": 62,
+      "cancelar": 19,
+      "bajar": 42,
+      "mantener": 1,
+      "score_prom": 44.98
+    },
+    {
+      "hora": "05:05",
+      "total": 54,
+      "cancelar": 11,
+      "bajar": 39,
+      "mantener": 4,
+      "score_prom": 49.47
+    },
+    {
+      "hora": "05:10",
+      "total": 48,
+      "cancelar": 15,
+      "bajar": 32,
+      "mantener": 1,
+      "score_prom": 45.38
+    },
+    {
+      "hora": "05:15",
+      "total": 66,
+      "cancelar": 20,
+      "bajar": 39,
+      "mantener": 7,
+      "score_prom": 48.17
+    },
+    {
+      "hora": "05:20",
+      "total": 49,
+      "cancelar": 17,
+      "bajar": 30,
+      "mantener": 2,
+      "score_prom": 45.83
+    },
+    {
+      "hora": "05:25",
+      "total": 35,
+      "cancelar": 6,
+      "bajar": 28,
+      "mantener": 1,
+      "score_prom": 50.89
+    },
+    {
+      "hora": "05:30",
+      "total": 24,
+      "cancelar": 8,
+      "bajar": 16,
+      "mantener": 0,
+      "score_prom": 46.83
+    },
+    {
+      "hora": "05:35",
+      "total": 37,
+      "cancelar": 7,
+      "bajar": 28,
+      "mantener": 2,
+      "score_prom": 47.62
+    },
+    {
+      "hora": "05:40",
+      "total": 31,
+      "cancelar": 10,
+      "bajar": 20,
+      "mantener": 1,
+      "score_prom": 46.34
+    },
+    {
+      "hora": "05:45",
+      "total": 24,
+      "cancelar": 7,
+      "bajar": 17,
+      "mantener": 0,
+      "score_prom": 47.93
+    },
+    {
+      "hora": "05:50",
+      "total": 15,
+      "cancelar": 3,
+      "bajar": 11,
+      "mantener": 1,
+      "score_prom": 47.68
+    },
+    {
+      "hora": "05:55",
+      "total": 12,
+      "cancelar": 2,
+      "bajar": 10,
+      "mantener": 0,
+      "score_prom": 49.78
+    },
+    {
+      "hora": "06:00",
+      "total": 11,
+      "cancelar": 1,
+      "bajar": 9,
+      "mantener": 1,
+      "score_prom": 51.46
+    },
+    {
+      "hora": "06:05",
+      "total": 5,
+      "cancelar": 1,
+      "bajar": 2,
+      "mantener": 2,
+      "score_prom": 54.11
+    },
+    {
+      "hora": "06:10",
+      "total": 7,
+      "cancelar": 0,
+      "bajar": 7,
+      "mantener": 0,
+      "score_prom": 52.76
+    },
+    {
+      "hora": "06:15",
+      "total": 8,
+      "cancelar": 4,
+      "bajar": 4,
+      "mantener": 0,
+      "score_prom": 43.56
+    },
+    {
+      "hora": "06:20",
+      "total": 14,
+      "cancelar": 4,
+      "bajar": 10,
+      "mantener": 0,
+      "score_prom": 43.49
+    },
+    {
+      "hora": "06:25",
+      "total": 16,
+      "cancelar": 5,
+      "bajar": 11,
+      "mantener": 0,
+      "score_prom": 44.66
+    },
+    {
+      "hora": "06:30",
+      "total": 16,
+      "cancelar": 7,
+      "bajar": 8,
+      "mantener": 1,
+      "score_prom": 45.47
+    },
+    {
+      "hora": "06:35",
+      "total": 10,
+      "cancelar": 4,
+      "bajar": 6,
+      "mantener": 0,
+      "score_prom": 41.92
+    },
+    {
+      "hora": "06:40",
+      "total": 4,
+      "cancelar": 1,
+      "bajar": 3,
+      "mantener": 0,
+      "score_prom": 42.2
+    },
+    {
+      "hora": "06:45",
+      "total": 3,
+      "cancelar": 1,
+      "bajar": 2,
+      "mantener": 0,
+      "score_prom": 47.92
+    },
+    {
+      "hora": "06:50",
+      "total": 4,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 0,
+      "score_prom": 53.18
+    },
+    {
+      "hora": "06:55",
+      "total": 4,
+      "cancelar": 2,
+      "bajar": 2,
+      "mantener": 0,
+      "score_prom": 45.7
+    },
+    {
+      "hora": "07:00",
+      "total": 6,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 2,
+      "score_prom": 55.14
+    },
+    {
+      "hora": "07:05",
+      "total": 6,
+      "cancelar": 1,
+      "bajar": 5,
+      "mantener": 0,
+      "score_prom": 50.91
+    },
+    {
+      "hora": "07:10",
+      "total": 1,
+      "cancelar": 0,
+      "bajar": 1,
+      "mantener": 0,
+      "score_prom": 43.42
+    },
+    {
+      "hora": "07:20",
+      "total": 4,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 0,
+      "score_prom": 52.67
+    },
+    {
+      "hora": "07:25",
+      "total": 6,
+      "cancelar": 1,
+      "bajar": 5,
+      "mantener": 0,
+      "score_prom": 46.67
+    },
+    {
+      "hora": "07:30",
+      "total": 1,
+      "cancelar": 0,
+      "bajar": 1,
+      "mantener": 0,
+      "score_prom": 56.57
+    }
+  ],
+  "top_cuentas_sospechosas": [
+    {
+      "usuario": "@apoyomateo_927",
+      "indice_sospecha": 0.8,
+      "score_confiabilidad": 28.18,
+      "num_publicaciones": 2,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_760",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 32.08,
+      "num_publicaciones": 3,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_757",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 28.38,
+      "num_publicaciones": 2,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@despiertaya_138",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 28.39,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_564",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 32.17,
+      "num_publicaciones": 3,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_981",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 29.56,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_885",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 30.13,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_214",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 30.59,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_863",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 29.67,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_871",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 31.38,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@mvidalteam_128",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 28.55,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@mvidalteam_897",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 28.58,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_151",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 32.57,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@noloocultes_412",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 32.2,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_630",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 29.3,
+      "num_publicaciones": 9,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_531",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 28.7,
+      "num_publicaciones": 10,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_218",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 29.53,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_943",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 28.74,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@mvidalteam_304",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 30.39,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@apoyomateo_446",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 30.07,
+      "num_publicaciones": 9,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_803",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 30.53,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_109",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 29.71,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_989",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 28.93,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_057",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 28.94,
+      "num_publicaciones": 12,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@despiertaya_807",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 30.84,
+      "num_publicaciones": 3,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@noloocultes_193",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 31.48,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_944",
+      "indice_sospecha": 0.77,
+      "score_confiabilidad": 29.1,
+      "num_publicaciones": 3,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_435",
+      "indice_sospecha": 0.77,
+      "score_confiabilidad": 30.16,
+      "num_publicaciones": 6,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@apoyomateo_602",
+      "indice_sospecha": 0.76,
+      "score_confiabilidad": 30.65,
+      "num_publicaciones": 10,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@mvidalteam_340",
+      "indice_sospecha": 0.76,
+      "score_confiabilidad": 30.63,
+      "num_publicaciones": 8,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    }
+  ],
+  "distribucion_score": [
+    {
+      "bin_inicio": 0,
+      "bin_fin": 5,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 5,
+      "bin_fin": 10,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 10,
+      "bin_fin": 15,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 15,
+      "bin_fin": 20,
+      "conteo": 43
+    },
+    {
+      "bin_inicio": 20,
+      "bin_fin": 25,
+      "conteo": 38
+    },
+    {
+      "bin_inicio": 25,
+      "bin_fin": 30,
+      "conteo": 195
+    },
+    {
+      "bin_inicio": 30,
+      "bin_fin": 35,
+      "conteo": 121
+    },
+    {
+      "bin_inicio": 35,
+      "bin_fin": 40,
+      "conteo": 375
+    },
+    {
+      "bin_inicio": 40,
+      "bin_fin": 45,
+      "conteo": 447
+    },
+    {
+      "bin_inicio": 45,
+      "bin_fin": 50,
+      "conteo": 443
+    },
+    {
+      "bin_inicio": 50,
+      "bin_fin": 55,
+      "conteo": 509
+    },
+    {
+      "bin_inicio": 55,
+      "bin_fin": 60,
+      "conteo": 532
+    },
+    {
+      "bin_inicio": 60,
+      "bin_fin": 65,
+      "conteo": 281
+    },
+    {
+      "bin_inicio": 65,
+      "bin_fin": 70,
+      "conteo": 131
+    },
+    {
+      "bin_inicio": 70,
+      "bin_fin": 75,
+      "conteo": 73
+    },
+    {
+      "bin_inicio": 75,
+      "bin_fin": 80,
+      "conteo": 19
+    },
+    {
+      "bin_inicio": 80,
+      "bin_fin": 85,
+      "conteo": 3
+    },
+    {
+      "bin_inicio": 85,
+      "bin_fin": 90,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 90,
+      "bin_fin": 95,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 95,
+      "bin_fin": 100,
+      "conteo": 0
+    }
+  ],
+  "muestras_por_zona": {
+    "Cancelar": [
+      {
+        "id": 2077,
+        "usuario": "@tomaspardotv",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "un tiktok con millones de vistas ya lo dio por hecho",
+        "score": 15.18,
+        "indice_sospecha": 0.8158878504672896,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 1171,
+        "usuario": "@angie03",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "Una cuenta que no conozco subió una captura que supuestamente confirma todo",
+        "score": 15.57,
+        "indice_sospecha": 0.8061269363717833,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 2107,
+        "usuario": "@david22",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "Posta que circula una lista de pruebas pero ninguna se puede verificar bien",
+        "score": 15.59,
+        "indice_sospecha": 0.8057521444117269,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 549,
+        "usuario": "@yuliana07",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "Me acaban de contar que circula una lista de pruebas pero ninguna se puede verificar bien",
+        "score": 15.64,
+        "indice_sospecha": 0.8044720052916826,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 734,
+        "usuario": "@jhon_real",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "dicen que hay un audio filtrado completo pero nadie lo ha mostrado",
+        "score": 15.66,
+        "indice_sospecha": 0.8039485981308411,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      }
+    ],
+    "Bajar el video": [
+      {
+        "id": 2947,
+        "usuario": "@carolinaramirez34",
+        "plataforma": "X",
+        "tipo": "Repost/Cita",
+        "texto": "Si esto no se aclara hoy se va a armar una novela de meses",
+        "score": 40.0,
+        "indice_sospecha": 0.5722741433021807,
+        "peso_prueba": 0.44,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 2717,
+        "usuario": "@valentinapinzonco",
+        "plataforma": "Instagram",
+        "tipo": "Comentario",
+        "texto": "Me acaban de contar que vi un live reaccionando que desmontó todo, aunque no lo vi completo",
+        "score": 40.01,
+        "indice_sospecha": 0.6596025903640166,
+        "peso_prueba": 0.54,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 1673,
+        "usuario": "@vivianatv",
+        "plataforma": "TikTok",
+        "tipo": "Repost/Cita",
+        "texto": "todo mundo subiendo teorías, nadie subiendo pruebas y todavía falta que hable Kai",
+        "score": 40.02,
+        "indice_sospecha": 0.5012321299022745,
+        "peso_prueba": 0.4,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 2050,
+        "usuario": "@adrianacun",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "que fastidio, otra vez cancelando a alguien sin dejarlo hablar otra vez 🤔🤔",
+        "score": 40.02,
+        "indice_sospecha": 0.5885948235394529,
+        "peso_prueba": 0.5,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 1205,
+        "usuario": "@tomaspardotv",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "la cantidad de cuentas nuevas comentando esto me da mala espina de verdad",
+        "score": 40.05,
+        "indice_sospecha": 0.5878816199376947,
+        "peso_prueba": 0.5,
+        "tasa_coordinacion": 0.5956386292834891
+      }
+    ],
+    "Mantener": [
+      {
+        "id": 52,
+        "usuario": "@gabrielabogota",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "actualización: seguridad del evento confirmó que hubo varios testigos presentes",
+        "score": 65.03,
+        "indice_sospecha": 0.17557632398753892,
+        "peso_prueba": 0.62,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 2768,
+        "usuario": "@miguel_col",
+        "plataforma": "Foro anónimo",
+        "tipo": "Post original",
+        "texto": "esto me recuerda a como diez casos parecidos de verdad",
+        "score": 65.03,
+        "indice_sospecha": 0.22577102803738316,
+        "peso_prueba": 0.8,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 467,
+        "usuario": "@cristianramirez_",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "Yo creo que hay que esperar antes de sacar conclusiones sin exagerar",
+        "score": 65.08,
+        "indice_sospecha": 0.03274922118380062,
+        "peso_prueba": 0.54,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 216,
+        "usuario": "@cesar07",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "honestamente, tengo un conocido que trabajó en la producción, dice que todo estuvo en orden",
+        "score": 65.08,
+        "indice_sospecha": 0.1742601246105919,
+        "peso_prueba": 0.62,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 871,
+        "usuario": "@fabian07",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "Increíble como en una noche esto se salió de control y eso que apenas empieza el día",
+        "score": 65.08,
+        "indice_sospecha": 0.03274922118380062,
+        "peso_prueba": 0.54,
+        "tasa_coordinacion": 0.5956386292834891
+      }
+    ]
+  },
+  "metadata": {
+    "generado_el": "2026-10-13",
+    "version": "1.0",
+    "fuente": "data/BASE.csv",
+    "nota": "Datos sinteticos — fines academicos"
   }
-}
+};
 
-function addMsg(txt, tipo) {
-  const c = $('cmsgs'), d = document.createElement('div');
-  d.className = 'msg ' + tipo;
-  d.textContent = txt;
-  c.appendChild(d);
-  c.scrollTop = c.scrollHeight;
-}
-
-function enviar() {
-  const inp = $('cinput'), t = inp.value.trim();
-  if (!t) return;
-  addMsg(t, 'user'); inp.value = '';
-  setTimeout(() => addMsg(Bot.responder(t), 'bot'), 300);
-}
-
-function chip(t) {
-  addMsg(t, 'user');
-  setTimeout(() => addMsg(Bot.responder(t), 'bot'), 300);
-  if (!chatOpen) { chatOpen=true; $('cpanel').classList.add('open'); }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   ARRANQUE
-══════════════════════════════════════════════════════════════ */
-// 1. Mostrar estático inmediatamente (sin esperar red)
-cargarEstatico();
-
-// 2. Intentar cargar desde Supabase (sobreescribe si funciona)
-cargarTodo();
+// Arrancar
+cargarDatos();
 </script>
 </body>
 </html>

@@ -1,0 +1,1376 @@
+{
+  "resumen": {
+    "total_publicaciones": 3210,
+    "periodo_inicio": "2026-03-14 23:47:00",
+    "periodo_fin": "2026-03-15 07:30:00",
+    "score_promedio": 48.54,
+    "score_mediana": 49.47,
+    "indice_sospecha_promedio": 0.384,
+    "decision": {
+      "Cancelar": 24.0,
+      "Bajar el video": 68.9,
+      "Mantener": 7.0,
+      "decision_final": "Bajar el video",
+      "confianza_pct": 68.9
+    }
+  },
+  "por_plataforma": [
+    {
+      "Plataforma": "Foro anónimo",
+      "total": 207,
+      "score_promedio": 48.92,
+      "indice_sospecha": 0.36
+    },
+    {
+      "Plataforma": "Instagram",
+      "total": 667,
+      "score_promedio": 50.04,
+      "indice_sospecha": 0.35
+    },
+    {
+      "Plataforma": "TikTok",
+      "total": 894,
+      "score_promedio": 47.96,
+      "indice_sospecha": 0.4
+    },
+    {
+      "Plataforma": "X",
+      "total": 1442,
+      "score_promedio": 48.15,
+      "indice_sospecha": 0.4
+    }
+  ],
+  "por_tipo_publicacion": [
+    {
+      "Tipo_Publicacion": "Comentario",
+      "total": 2111,
+      "score_promedio": 49.63,
+      "peso_prueba": 0.5
+    },
+    {
+      "Tipo_Publicacion": "Descripción de captura",
+      "total": 190,
+      "score_promedio": 45.0,
+      "peso_prueba": 0.31
+    },
+    {
+      "Tipo_Publicacion": "Post original",
+      "total": 179,
+      "score_promedio": 65.25,
+      "peso_prueba": 0.82
+    },
+    {
+      "Tipo_Publicacion": "Repost/Cita",
+      "total": 574,
+      "score_promedio": 42.28,
+      "peso_prueba": 0.41
+    },
+    {
+      "Tipo_Publicacion": "Transcripción de audio/video",
+      "total": 156,
+      "score_promedio": 41.93,
+      "peso_prueba": 0.21
+    }
+  ],
+  "por_perfil_usuario": [
+    {
+      "Perfil_Usuario": "Anónimo",
+      "total": 1072,
+      "score_promedio": 46.76,
+      "indice_sospecha": 0.42
+    },
+    {
+      "Perfil_Usuario": "Bot_Sospechoso",
+      "total": 232,
+      "score_promedio": 32.74,
+      "indice_sospecha": 0.74
+    },
+    {
+      "Perfil_Usuario": "Cuenta_Nueva",
+      "total": 608,
+      "score_promedio": 38.9,
+      "indice_sospecha": 0.61
+    },
+    {
+      "Perfil_Usuario": "Fan_Antiguo",
+      "total": 683,
+      "score_promedio": 55.0,
+      "indice_sospecha": 0.23
+    },
+    {
+      "Perfil_Usuario": "Verificado",
+      "total": 615,
+      "score_promedio": 59.95,
+      "indice_sospecha": 0.13
+    }
+  ],
+  "linea_de_tiempo": [
+    {
+      "hora": "23:45",
+      "total": 5,
+      "cancelar": 2,
+      "bajar": 3,
+      "mantener": 0,
+      "score_prom": 41.93
+    },
+    {
+      "hora": "23:50",
+      "total": 8,
+      "cancelar": 0,
+      "bajar": 7,
+      "mantener": 1,
+      "score_prom": 53.33
+    },
+    {
+      "hora": "23:55",
+      "total": 4,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 0,
+      "score_prom": 51.87
+    },
+    {
+      "hora": "00:00",
+      "total": 2,
+      "cancelar": 0,
+      "bajar": 1,
+      "mantener": 1,
+      "score_prom": 63.42
+    },
+    {
+      "hora": "00:05",
+      "total": 3,
+      "cancelar": 0,
+      "bajar": 3,
+      "mantener": 0,
+      "score_prom": 59.34
+    },
+    {
+      "hora": "00:10",
+      "total": 6,
+      "cancelar": 1,
+      "bajar": 3,
+      "mantener": 2,
+      "score_prom": 49.96
+    },
+    {
+      "hora": "00:15",
+      "total": 8,
+      "cancelar": 2,
+      "bajar": 4,
+      "mantener": 2,
+      "score_prom": 53.2
+    },
+    {
+      "hora": "00:20",
+      "total": 8,
+      "cancelar": 0,
+      "bajar": 7,
+      "mantener": 1,
+      "score_prom": 53.34
+    },
+    {
+      "hora": "00:25",
+      "total": 2,
+      "cancelar": 0,
+      "bajar": 2,
+      "mantener": 0,
+      "score_prom": 46.03
+    },
+    {
+      "hora": "00:30",
+      "total": 3,
+      "cancelar": 0,
+      "bajar": 3,
+      "mantener": 0,
+      "score_prom": 56.97
+    },
+    {
+      "hora": "00:35",
+      "total": 5,
+      "cancelar": 0,
+      "bajar": 5,
+      "mantener": 0,
+      "score_prom": 55.43
+    },
+    {
+      "hora": "00:40",
+      "total": 8,
+      "cancelar": 0,
+      "bajar": 7,
+      "mantener": 1,
+      "score_prom": 54.24
+    },
+    {
+      "hora": "00:45",
+      "total": 6,
+      "cancelar": 2,
+      "bajar": 3,
+      "mantener": 1,
+      "score_prom": 50.72
+    },
+    {
+      "hora": "00:50",
+      "total": 5,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 1,
+      "score_prom": 60.27
+    },
+    {
+      "hora": "00:55",
+      "total": 9,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 5,
+      "score_prom": 61.25
+    },
+    {
+      "hora": "01:00",
+      "total": 9,
+      "cancelar": 2,
+      "bajar": 6,
+      "mantener": 1,
+      "score_prom": 51.54
+    },
+    {
+      "hora": "01:05",
+      "total": 9,
+      "cancelar": 0,
+      "bajar": 8,
+      "mantener": 1,
+      "score_prom": 57.85
+    },
+    {
+      "hora": "01:10",
+      "total": 4,
+      "cancelar": 0,
+      "bajar": 3,
+      "mantener": 1,
+      "score_prom": 58.37
+    },
+    {
+      "hora": "01:15",
+      "total": 12,
+      "cancelar": 4,
+      "bajar": 7,
+      "mantener": 1,
+      "score_prom": 46.93
+    },
+    {
+      "hora": "01:20",
+      "total": 3,
+      "cancelar": 0,
+      "bajar": 2,
+      "mantener": 1,
+      "score_prom": 61.24
+    },
+    {
+      "hora": "01:25",
+      "total": 6,
+      "cancelar": 1,
+      "bajar": 5,
+      "mantener": 0,
+      "score_prom": 51.36
+    },
+    {
+      "hora": "01:30",
+      "total": 20,
+      "cancelar": 5,
+      "bajar": 13,
+      "mantener": 2,
+      "score_prom": 48.77
+    },
+    {
+      "hora": "01:35",
+      "total": 14,
+      "cancelar": 2,
+      "bajar": 11,
+      "mantener": 1,
+      "score_prom": 49.75
+    },
+    {
+      "hora": "01:40",
+      "total": 26,
+      "cancelar": 4,
+      "bajar": 21,
+      "mantener": 1,
+      "score_prom": 51.85
+    },
+    {
+      "hora": "01:45",
+      "total": 18,
+      "cancelar": 3,
+      "bajar": 11,
+      "mantener": 4,
+      "score_prom": 53.03
+    },
+    {
+      "hora": "01:50",
+      "total": 13,
+      "cancelar": 2,
+      "bajar": 10,
+      "mantener": 1,
+      "score_prom": 52.82
+    },
+    {
+      "hora": "01:55",
+      "total": 12,
+      "cancelar": 1,
+      "bajar": 11,
+      "mantener": 0,
+      "score_prom": 49.05
+    },
+    {
+      "hora": "02:00",
+      "total": 19,
+      "cancelar": 4,
+      "bajar": 14,
+      "mantener": 1,
+      "score_prom": 51.74
+    },
+    {
+      "hora": "02:05",
+      "total": 16,
+      "cancelar": 4,
+      "bajar": 7,
+      "mantener": 5,
+      "score_prom": 54.21
+    },
+    {
+      "hora": "02:10",
+      "total": 23,
+      "cancelar": 5,
+      "bajar": 17,
+      "mantener": 1,
+      "score_prom": 49.92
+    },
+    {
+      "hora": "02:15",
+      "total": 14,
+      "cancelar": 1,
+      "bajar": 9,
+      "mantener": 4,
+      "score_prom": 57.54
+    },
+    {
+      "hora": "02:20",
+      "total": 24,
+      "cancelar": 5,
+      "bajar": 16,
+      "mantener": 3,
+      "score_prom": 50.26
+    },
+    {
+      "hora": "02:25",
+      "total": 16,
+      "cancelar": 3,
+      "bajar": 9,
+      "mantener": 4,
+      "score_prom": 52.2
+    },
+    {
+      "hora": "02:30",
+      "total": 29,
+      "cancelar": 6,
+      "bajar": 23,
+      "mantener": 0,
+      "score_prom": 49.13
+    },
+    {
+      "hora": "02:35",
+      "total": 30,
+      "cancelar": 7,
+      "bajar": 22,
+      "mantener": 1,
+      "score_prom": 48.0
+    },
+    {
+      "hora": "02:40",
+      "total": 36,
+      "cancelar": 7,
+      "bajar": 26,
+      "mantener": 3,
+      "score_prom": 50.57
+    },
+    {
+      "hora": "02:45",
+      "total": 33,
+      "cancelar": 9,
+      "bajar": 22,
+      "mantener": 2,
+      "score_prom": 48.06
+    },
+    {
+      "hora": "02:50",
+      "total": 34,
+      "cancelar": 6,
+      "bajar": 25,
+      "mantener": 3,
+      "score_prom": 50.6
+    },
+    {
+      "hora": "02:55",
+      "total": 36,
+      "cancelar": 9,
+      "bajar": 24,
+      "mantener": 3,
+      "score_prom": 49.64
+    },
+    {
+      "hora": "03:00",
+      "total": 51,
+      "cancelar": 15,
+      "bajar": 28,
+      "mantener": 8,
+      "score_prom": 50.25
+    },
+    {
+      "hora": "03:05",
+      "total": 73,
+      "cancelar": 21,
+      "bajar": 47,
+      "mantener": 5,
+      "score_prom": 47.39
+    },
+    {
+      "hora": "03:10",
+      "total": 67,
+      "cancelar": 18,
+      "bajar": 42,
+      "mantener": 7,
+      "score_prom": 48.22
+    },
+    {
+      "hora": "03:15",
+      "total": 72,
+      "cancelar": 16,
+      "bajar": 49,
+      "mantener": 7,
+      "score_prom": 51.02
+    },
+    {
+      "hora": "03:20",
+      "total": 49,
+      "cancelar": 13,
+      "bajar": 33,
+      "mantener": 3,
+      "score_prom": 46.91
+    },
+    {
+      "hora": "03:25",
+      "total": 60,
+      "cancelar": 18,
+      "bajar": 36,
+      "mantener": 6,
+      "score_prom": 49.07
+    },
+    {
+      "hora": "03:30",
+      "total": 87,
+      "cancelar": 21,
+      "bajar": 55,
+      "mantener": 11,
+      "score_prom": 49.28
+    },
+    {
+      "hora": "03:35",
+      "total": 81,
+      "cancelar": 17,
+      "bajar": 60,
+      "mantener": 4,
+      "score_prom": 49.21
+    },
+    {
+      "hora": "03:40",
+      "total": 80,
+      "cancelar": 17,
+      "bajar": 58,
+      "mantener": 5,
+      "score_prom": 49.15
+    },
+    {
+      "hora": "03:45",
+      "total": 72,
+      "cancelar": 19,
+      "bajar": 49,
+      "mantener": 4,
+      "score_prom": 47.23
+    },
+    {
+      "hora": "03:50",
+      "total": 85,
+      "cancelar": 17,
+      "bajar": 57,
+      "mantener": 11,
+      "score_prom": 50.19
+    },
+    {
+      "hora": "03:55",
+      "total": 90,
+      "cancelar": 18,
+      "bajar": 62,
+      "mantener": 10,
+      "score_prom": 49.57
+    },
+    {
+      "hora": "04:00",
+      "total": 109,
+      "cancelar": 20,
+      "bajar": 83,
+      "mantener": 6,
+      "score_prom": 49.08
+    },
+    {
+      "hora": "04:05",
+      "total": 131,
+      "cancelar": 28,
+      "bajar": 95,
+      "mantener": 8,
+      "score_prom": 48.63
+    },
+    {
+      "hora": "04:10",
+      "total": 139,
+      "cancelar": 26,
+      "bajar": 106,
+      "mantener": 7,
+      "score_prom": 48.52
+    },
+    {
+      "hora": "04:15",
+      "total": 175,
+      "cancelar": 47,
+      "bajar": 120,
+      "mantener": 8,
+      "score_prom": 46.74
+    },
+    {
+      "hora": "04:20",
+      "total": 135,
+      "cancelar": 43,
+      "bajar": 84,
+      "mantener": 8,
+      "score_prom": 46.19
+    },
+    {
+      "hora": "04:25",
+      "total": 97,
+      "cancelar": 28,
+      "bajar": 64,
+      "mantener": 5,
+      "score_prom": 47.16
+    },
+    {
+      "hora": "04:30",
+      "total": 89,
+      "cancelar": 18,
+      "bajar": 67,
+      "mantener": 4,
+      "score_prom": 48.07
+    },
+    {
+      "hora": "04:35",
+      "total": 77,
+      "cancelar": 26,
+      "bajar": 50,
+      "mantener": 1,
+      "score_prom": 45.36
+    },
+    {
+      "hora": "04:40",
+      "total": 66,
+      "cancelar": 15,
+      "bajar": 49,
+      "mantener": 2,
+      "score_prom": 48.39
+    },
+    {
+      "hora": "04:45",
+      "total": 78,
+      "cancelar": 23,
+      "bajar": 52,
+      "mantener": 3,
+      "score_prom": 46.41
+    },
+    {
+      "hora": "04:50",
+      "total": 69,
+      "cancelar": 22,
+      "bajar": 44,
+      "mantener": 3,
+      "score_prom": 47.37
+    },
+    {
+      "hora": "04:55",
+      "total": 57,
+      "cancelar": 12,
+      "bajar": 40,
+      "mantener": 5,
+      "score_prom": 49.62
+    },
+    {
+      "hora": "05:00",
+      "total": 62,
+      "cancelar": 19,
+      "bajar": 42,
+      "mantener": 1,
+      "score_prom": 44.98
+    },
+    {
+      "hora": "05:05",
+      "total": 54,
+      "cancelar": 11,
+      "bajar": 39,
+      "mantener": 4,
+      "score_prom": 49.47
+    },
+    {
+      "hora": "05:10",
+      "total": 48,
+      "cancelar": 15,
+      "bajar": 32,
+      "mantener": 1,
+      "score_prom": 45.38
+    },
+    {
+      "hora": "05:15",
+      "total": 66,
+      "cancelar": 20,
+      "bajar": 39,
+      "mantener": 7,
+      "score_prom": 48.17
+    },
+    {
+      "hora": "05:20",
+      "total": 49,
+      "cancelar": 17,
+      "bajar": 30,
+      "mantener": 2,
+      "score_prom": 45.83
+    },
+    {
+      "hora": "05:25",
+      "total": 35,
+      "cancelar": 6,
+      "bajar": 28,
+      "mantener": 1,
+      "score_prom": 50.89
+    },
+    {
+      "hora": "05:30",
+      "total": 24,
+      "cancelar": 8,
+      "bajar": 16,
+      "mantener": 0,
+      "score_prom": 46.83
+    },
+    {
+      "hora": "05:35",
+      "total": 37,
+      "cancelar": 7,
+      "bajar": 28,
+      "mantener": 2,
+      "score_prom": 47.62
+    },
+    {
+      "hora": "05:40",
+      "total": 31,
+      "cancelar": 10,
+      "bajar": 20,
+      "mantener": 1,
+      "score_prom": 46.34
+    },
+    {
+      "hora": "05:45",
+      "total": 24,
+      "cancelar": 7,
+      "bajar": 17,
+      "mantener": 0,
+      "score_prom": 47.93
+    },
+    {
+      "hora": "05:50",
+      "total": 15,
+      "cancelar": 3,
+      "bajar": 11,
+      "mantener": 1,
+      "score_prom": 47.68
+    },
+    {
+      "hora": "05:55",
+      "total": 12,
+      "cancelar": 2,
+      "bajar": 10,
+      "mantener": 0,
+      "score_prom": 49.78
+    },
+    {
+      "hora": "06:00",
+      "total": 11,
+      "cancelar": 1,
+      "bajar": 9,
+      "mantener": 1,
+      "score_prom": 51.46
+    },
+    {
+      "hora": "06:05",
+      "total": 5,
+      "cancelar": 1,
+      "bajar": 2,
+      "mantener": 2,
+      "score_prom": 54.11
+    },
+    {
+      "hora": "06:10",
+      "total": 7,
+      "cancelar": 0,
+      "bajar": 7,
+      "mantener": 0,
+      "score_prom": 52.76
+    },
+    {
+      "hora": "06:15",
+      "total": 8,
+      "cancelar": 4,
+      "bajar": 4,
+      "mantener": 0,
+      "score_prom": 43.56
+    },
+    {
+      "hora": "06:20",
+      "total": 14,
+      "cancelar": 4,
+      "bajar": 10,
+      "mantener": 0,
+      "score_prom": 43.49
+    },
+    {
+      "hora": "06:25",
+      "total": 16,
+      "cancelar": 5,
+      "bajar": 11,
+      "mantener": 0,
+      "score_prom": 44.66
+    },
+    {
+      "hora": "06:30",
+      "total": 16,
+      "cancelar": 7,
+      "bajar": 8,
+      "mantener": 1,
+      "score_prom": 45.47
+    },
+    {
+      "hora": "06:35",
+      "total": 10,
+      "cancelar": 4,
+      "bajar": 6,
+      "mantener": 0,
+      "score_prom": 41.92
+    },
+    {
+      "hora": "06:40",
+      "total": 4,
+      "cancelar": 1,
+      "bajar": 3,
+      "mantener": 0,
+      "score_prom": 42.2
+    },
+    {
+      "hora": "06:45",
+      "total": 3,
+      "cancelar": 1,
+      "bajar": 2,
+      "mantener": 0,
+      "score_prom": 47.92
+    },
+    {
+      "hora": "06:50",
+      "total": 4,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 0,
+      "score_prom": 53.18
+    },
+    {
+      "hora": "06:55",
+      "total": 4,
+      "cancelar": 2,
+      "bajar": 2,
+      "mantener": 0,
+      "score_prom": 45.7
+    },
+    {
+      "hora": "07:00",
+      "total": 6,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 2,
+      "score_prom": 55.14
+    },
+    {
+      "hora": "07:05",
+      "total": 6,
+      "cancelar": 1,
+      "bajar": 5,
+      "mantener": 0,
+      "score_prom": 50.91
+    },
+    {
+      "hora": "07:10",
+      "total": 1,
+      "cancelar": 0,
+      "bajar": 1,
+      "mantener": 0,
+      "score_prom": 43.42
+    },
+    {
+      "hora": "07:20",
+      "total": 4,
+      "cancelar": 0,
+      "bajar": 4,
+      "mantener": 0,
+      "score_prom": 52.67
+    },
+    {
+      "hora": "07:25",
+      "total": 6,
+      "cancelar": 1,
+      "bajar": 5,
+      "mantener": 0,
+      "score_prom": 46.67
+    },
+    {
+      "hora": "07:30",
+      "total": 1,
+      "cancelar": 0,
+      "bajar": 1,
+      "mantener": 0,
+      "score_prom": 56.57
+    }
+  ],
+  "top_cuentas_sospechosas": [
+    {
+      "usuario": "@apoyomateo_927",
+      "indice_sospecha": 0.8,
+      "score_confiabilidad": 28.18,
+      "num_publicaciones": 2,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_760",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 32.08,
+      "num_publicaciones": 3,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_757",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 28.38,
+      "num_publicaciones": 2,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@despiertaya_138",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 28.39,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_564",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 32.17,
+      "num_publicaciones": 3,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_981",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 29.56,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_885",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 30.13,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_214",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 30.59,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_863",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 29.67,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_871",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 31.38,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@mvidalteam_128",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 28.55,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@mvidalteam_897",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 28.58,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_151",
+      "indice_sospecha": 0.79,
+      "score_confiabilidad": 32.57,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@noloocultes_412",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 32.2,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_630",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 29.3,
+      "num_publicaciones": 9,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_531",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 28.7,
+      "num_publicaciones": 10,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_218",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 29.53,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_943",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 28.74,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@mvidalteam_304",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 30.39,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@apoyomateo_446",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 30.07,
+      "num_publicaciones": 9,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_803",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 30.53,
+      "num_publicaciones": 5,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@despiertaya_109",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 29.71,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_989",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 28.93,
+      "num_publicaciones": 4,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_057",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 28.94,
+      "num_publicaciones": 12,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@despiertaya_807",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 30.84,
+      "num_publicaciones": 3,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@noloocultes_193",
+      "indice_sospecha": 0.78,
+      "score_confiabilidad": 31.48,
+      "num_publicaciones": 7,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@noloocultes_944",
+      "indice_sospecha": 0.77,
+      "score_confiabilidad": 29.1,
+      "num_publicaciones": 3,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@mvidalteam_435",
+      "indice_sospecha": 0.77,
+      "score_confiabilidad": 30.16,
+      "num_publicaciones": 6,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "X"
+    },
+    {
+      "usuario": "@apoyomateo_602",
+      "indice_sospecha": 0.76,
+      "score_confiabilidad": 30.65,
+      "num_publicaciones": 10,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    },
+    {
+      "usuario": "@mvidalteam_340",
+      "indice_sospecha": 0.76,
+      "score_confiabilidad": 30.63,
+      "num_publicaciones": 8,
+      "perfil": "Bot_Sospechoso",
+      "plataforma": "TikTok"
+    }
+  ],
+  "distribucion_score": [
+    {
+      "bin_inicio": 0,
+      "bin_fin": 5,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 5,
+      "bin_fin": 10,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 10,
+      "bin_fin": 15,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 15,
+      "bin_fin": 20,
+      "conteo": 43
+    },
+    {
+      "bin_inicio": 20,
+      "bin_fin": 25,
+      "conteo": 38
+    },
+    {
+      "bin_inicio": 25,
+      "bin_fin": 30,
+      "conteo": 195
+    },
+    {
+      "bin_inicio": 30,
+      "bin_fin": 35,
+      "conteo": 121
+    },
+    {
+      "bin_inicio": 35,
+      "bin_fin": 40,
+      "conteo": 375
+    },
+    {
+      "bin_inicio": 40,
+      "bin_fin": 45,
+      "conteo": 447
+    },
+    {
+      "bin_inicio": 45,
+      "bin_fin": 50,
+      "conteo": 443
+    },
+    {
+      "bin_inicio": 50,
+      "bin_fin": 55,
+      "conteo": 509
+    },
+    {
+      "bin_inicio": 55,
+      "bin_fin": 60,
+      "conteo": 532
+    },
+    {
+      "bin_inicio": 60,
+      "bin_fin": 65,
+      "conteo": 281
+    },
+    {
+      "bin_inicio": 65,
+      "bin_fin": 70,
+      "conteo": 131
+    },
+    {
+      "bin_inicio": 70,
+      "bin_fin": 75,
+      "conteo": 73
+    },
+    {
+      "bin_inicio": 75,
+      "bin_fin": 80,
+      "conteo": 19
+    },
+    {
+      "bin_inicio": 80,
+      "bin_fin": 85,
+      "conteo": 3
+    },
+    {
+      "bin_inicio": 85,
+      "bin_fin": 90,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 90,
+      "bin_fin": 95,
+      "conteo": 0
+    },
+    {
+      "bin_inicio": 95,
+      "bin_fin": 100,
+      "conteo": 0
+    }
+  ],
+  "muestras_por_zona": {
+    "Cancelar": [
+      {
+        "id": 2077,
+        "usuario": "@tomaspardotv",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "un tiktok con millones de vistas ya lo dio por hecho",
+        "score": 15.18,
+        "indice_sospecha": 0.8158878504672896,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 1171,
+        "usuario": "@angie03",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "Una cuenta que no conozco subió una captura que supuestamente confirma todo",
+        "score": 15.57,
+        "indice_sospecha": 0.8061269363717833,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 2107,
+        "usuario": "@david22",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "Posta que circula una lista de pruebas pero ninguna se puede verificar bien",
+        "score": 15.59,
+        "indice_sospecha": 0.8057521444117269,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 549,
+        "usuario": "@yuliana07",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "Me acaban de contar que circula una lista de pruebas pero ninguna se puede verificar bien",
+        "score": 15.64,
+        "indice_sospecha": 0.8044720052916826,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 734,
+        "usuario": "@jhon_real",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "dicen que hay un audio filtrado completo pero nadie lo ha mostrado",
+        "score": 15.66,
+        "indice_sospecha": 0.8039485981308411,
+        "peso_prueba": 0.04999999999999999,
+        "tasa_coordinacion": 0.5956386292834891
+      }
+    ],
+    "Bajar el video": [
+      {
+        "id": 2947,
+        "usuario": "@carolinaramirez34",
+        "plataforma": "X",
+        "tipo": "Repost/Cita",
+        "texto": "Si esto no se aclara hoy se va a armar una novela de meses",
+        "score": 40.0,
+        "indice_sospecha": 0.5722741433021807,
+        "peso_prueba": 0.44,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 2717,
+        "usuario": "@valentinapinzonco",
+        "plataforma": "Instagram",
+        "tipo": "Comentario",
+        "texto": "Me acaban de contar que vi un live reaccionando que desmontó todo, aunque no lo vi completo",
+        "score": 40.01,
+        "indice_sospecha": 0.6596025903640166,
+        "peso_prueba": 0.54,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 1673,
+        "usuario": "@vivianatv",
+        "plataforma": "TikTok",
+        "tipo": "Repost/Cita",
+        "texto": "todo mundo subiendo teorías, nadie subiendo pruebas y todavía falta que hable Kai",
+        "score": 40.02,
+        "indice_sospecha": 0.5012321299022745,
+        "peso_prueba": 0.4,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 2050,
+        "usuario": "@adrianacun",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "que fastidio, otra vez cancelando a alguien sin dejarlo hablar otra vez 🤔🤔",
+        "score": 40.02,
+        "indice_sospecha": 0.5885948235394529,
+        "peso_prueba": 0.5,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 1205,
+        "usuario": "@tomaspardotv",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "la cantidad de cuentas nuevas comentando esto me da mala espina de verdad",
+        "score": 40.05,
+        "indice_sospecha": 0.5878816199376947,
+        "peso_prueba": 0.5,
+        "tasa_coordinacion": 0.5956386292834891
+      }
+    ],
+    "Mantener": [
+      {
+        "id": 52,
+        "usuario": "@gabrielabogota",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "actualización: seguridad del evento confirmó que hubo varios testigos presentes",
+        "score": 65.03,
+        "indice_sospecha": 0.17557632398753892,
+        "peso_prueba": 0.62,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 2768,
+        "usuario": "@miguel_col",
+        "plataforma": "Foro anónimo",
+        "tipo": "Post original",
+        "texto": "esto me recuerda a como diez casos parecidos de verdad",
+        "score": 65.03,
+        "indice_sospecha": 0.22577102803738316,
+        "peso_prueba": 0.8,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 467,
+        "usuario": "@cristianramirez_",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "Yo creo que hay que esperar antes de sacar conclusiones sin exagerar",
+        "score": 65.08,
+        "indice_sospecha": 0.03274922118380062,
+        "peso_prueba": 0.54,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 216,
+        "usuario": "@cesar07",
+        "plataforma": "TikTok",
+        "tipo": "Comentario",
+        "texto": "honestamente, tengo un conocido que trabajó en la producción, dice que todo estuvo en orden",
+        "score": 65.08,
+        "indice_sospecha": 0.1742601246105919,
+        "peso_prueba": 0.62,
+        "tasa_coordinacion": 0.5956386292834891
+      },
+      {
+        "id": 871,
+        "usuario": "@fabian07",
+        "plataforma": "X",
+        "tipo": "Comentario",
+        "texto": "Increíble como en una noche esto se salió de control y eso que apenas empieza el día",
+        "score": 65.08,
+        "indice_sospecha": 0.03274922118380062,
+        "peso_prueba": 0.54,
+        "tasa_coordinacion": 0.5956386292834891
+      }
+    ]
+  },
+  "metadata": {
+    "generado_el": "2026-10-13",
+    "version": "1.0",
+    "fuente": "data/BASE.csv",
+    "nota": "Datos sinteticos — fines academicos"
+  }
+}

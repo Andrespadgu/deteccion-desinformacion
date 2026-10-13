@@ -1,6 +1,42 @@
-.claude/
-.env
-*.env
+# Entorno Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
 
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Secretos y credenciales
+.env
+.env.*
+*.secret
+SECRETOS*
+
+# Claude Code (no va al repo público)
+.claude/
+CLAUDE.md
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Scripts auxiliares de construcción (solo necesarios localmente)
+crear_notebook.py
+
+# Archivos temporales extraídos de PDFs (solo para uso local)
+docs/CANCELADO.txt
+docs/GUIA_SOLUCION_RETO_CANCELADO.txt
